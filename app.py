@@ -65,10 +65,10 @@ with col1:
     age = st.number_input("Patient Age (Years)", min_value=1, max_value=120, value=45, step=1)
     bmi = st.number_input("Body Mass Index (BMI)", min_value=10.0, max_value=60.0, value=25.4, step=0.1)
     gender = st.selectbox("Biological Sex", options=["Female", "Male"])
-    high_bp = st.selectbox("Diagnosed Hypertension History (High BP)?", options=["No", "Yes"])
+    high_bp = st.selectbox("Diagnosed High BP History ?", options=["No", "Yes"])
 
 with col2:
-    high_chol = st.selectbox("Diagnosed Hypercholesterolemia History (High Cholesterol)?", options=["No", "Yes"])
+    high_chol = st.selectbox("Diagnosed High Cholesterol History ?", options=["No", "Yes"])
     smoker = st.selectbox("Tobacco Smoking Profile Status?", options=["No", "Yes"])
     exercise = st.selectbox("Regular Structured Physical Activity?", options=["Yes", "No"])
 
