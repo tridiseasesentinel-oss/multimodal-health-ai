@@ -7,11 +7,10 @@ import time
 
 st.set_page_config(page_title="Global Health Evaluation", layout="wide")
 
-# Premium Dynamic Tech UI Theme Styling
 st.markdown("""
     <style>
     .block-heading {
-        color: #1e3a8a; /* Deep Royal Blue */
+        color: #1e3a8a;
         font-size: 24px;
         font-weight: 700;
         border-bottom: 3px solid #3b82f6;
@@ -39,13 +38,9 @@ st.markdown("""
         box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
         transition: all 0.3s ease;
     }
-    div.stButton > button:first-child:hover {
-        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
-    }
     </style>
 """, unsafe_allow_html=True)
 
-# Cache loading for models safely
 @st.cache_resource
 def load_diagnostic_models():
     d = pickle.load(open("d_model.pkl", "rb"))
@@ -56,17 +51,12 @@ def load_diagnostic_models():
 try:
     d_model, h_model, o_model = load_diagnostic_models()
 except Exception as e:
-    st.error("System configuration files are initializing. Please hold on.")
+    st.error("Models loading failed. Please check paths.")
 
-# ----------------- GLOBAL MULTILINGUAL TRANSLATION DICTIONARY -----------------
 with st.sidebar:
     st.markdown("### 🌐 System Settings")
-    lang = st.selectbox(
-        "Select Portal Language / زبان منتخب کریں", 
-        ["English", "Urdu"]
-    )
+    lang = st.selectbox("Select Portal Language / زبان منتخب کریں", ["English", "Urdu"])
 
-# Comprehensive Multi-Language Pack
 text_pack = {
     "English": {
         "title": "Personal Health Evaluation Form",
@@ -103,9 +93,7 @@ t = text_pack[lang]
 st.title(t["title"])
 st.markdown(t["subtitle"])
 
-# ----------------- SECTION 1: REGISTRATION -----------------
 st.markdown(f"<div class='block-heading'>{t['h1']}</div>", unsafe_allow_html=True)
-
 if 'auto_case_id' not in st.session_state:
     st.session_state.auto_case_id = f"CR-{time.strftime('%m%d')}-{str(int(time.time()))[-4:]}"
 
@@ -117,21 +105,17 @@ with c2:
 with c3:
     p_age = st.number_input(t["age"], min_value=1, max_value=120, value=25, step=1)
 
-# ----------------- SECTION 2: VITALS & PHYSICAL METRICS -----------------
 st.markdown(f"<br><div class='block-heading'>{t['h2']}</div>", unsafe_allow_html=True)
 col1, col2 = st.columns(2)
 
 with col1:
     weight = st.number_input(t["weight"], min_value=10.0, max_value=250.0, value=60.0, step=0.5)
-    
-    # Feet & Inches Dropdown Components
     ht_c1, ht_c2 = st.columns(2)
     with ht_c1:
         ft_val = st.selectbox(t["height_ft"], list(range(1, 9)), index=4)
     with ht_c2:
         in_val = st.selectbox(t["height_in"], list(range(12)), index=6)
         
-    # Math metric conversion logic
     total_inches = (ft_val * 12) + in_val
     height_cm = total_inches * 2.54
     height_m = height_cm / 100.0
@@ -147,26 +131,18 @@ with col2:
     cholesterol = st.number_input(t["chol"], min_value=100, max_value=450, value=195, step=1)
     exercise_hours = st.number_input(t["exercise"], min_value=0, max_value=40, value=3, step=1)
     
-    if lang == "Urdu":
-        gender_options = ["مرد (Male)", "عورت (Female)"]
-    else:
-        gender_options = ["Male", "Female"]
-        
+    gender_options = ["مرد (Male)", "عورت (Female)"] if lang == "Urdu" else ["Male", "Female"]
     gender_selection = st.selectbox(t["gender"], gender_options)
     gender_num = 1 if gender_selection in ["Male", "مرد (Male)"] else 0
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# ----------------- ACCURATE PREDICTION ENGINE -----------------
 if st.button(t["btn"]):
-    
-    # Clean structural arrays matching the exact training dimension requirements
     d_array = np.array([[p_age, bmi_calc, hba1c, fpg, systolic_bp, cholesterol]], dtype=np.float32)
     h_array = np.array([[p_age, gender_num, systolic_bp, cholesterol, heart_rate, exercise_hours]], dtype=np.float32)
     o_array = np.array([[p_age, gender_num, bmi_calc]], dtype=np.float32)
     
     try:
-        # Force-override booster specifications to fully prevent any structural name checks
         if hasattr(d_model, 'get_booster'):
             d_model.get_booster().feature_names = None
         if hasattr(h_model, 'get_booster'):
@@ -174,12 +150,10 @@ if st.button(t["btn"]):
         if hasattr(o_model, 'get_booster'):
             o_model.get_booster().feature_names = None
 
-        # Robust array pipeline execution
         d_pred = d_model.predict(d_array)
         h_pred = h_model.predict(h_array)
         o_pred = o_model.predict(o_array)
         
-        # Safe result extraction for all formats
         d_res = int(d_pred[0]) if hasattr(d_pred, '__len__') else int(d_pred)
         h_res = int(h_pred[0]) if hasattr(h_pred, '__len__') else int(h_pred)
         o_res = int(o_pred[0]) if hasattr(o_pred, '__len__') else int(o_pred)
@@ -194,50 +168,27 @@ if st.button(t["btn"]):
         with res3:
             obesity_map = {0: "Underweight", 1: "Normal Weight", 2: "Overweight", 3: "Obese Class"}
             obesity_map_ur = {0: "کم وزن", 1: "نارمل وزن", 2: "زیادہ وزن", 3: "موٹاپا"}
-            
             final_ob_val = obesity_map_ur.get(o_res, "نارمل وزن") if lang == "Urdu" else obesity_map.get(o_res, "Normal Weight")
             st.metric(label=t["ob_lbl"], value=final_ob_val)
             
         st.success(t["success"])
         
-        # ----------------- PRECAUTIONARY MEASURES SECTION -----------------
         st.markdown(f"<br><div class='block-heading'>{t['h4']}</div>", unsafe_allow_html=True)
         
-        # 1. Diabetes Precautions
         if d_res == 1:
-            if lang == "Urdu":
-                st.markdown("<div class='precaution-box'>⚠️ <b>ذیابیطس کے لیے:</b> میٹھی اشیاء اور زیادہ کاربوہائیڈریٹس والی غذاؤں سے پرہیز کریں۔ روزانہ باقاعدگی سے 30 منٹ چہل قدمی کریں اور شوگر لیول مانیٹر کریں۔</div>", unsafe_allow_html=True)
-            else:
-                st.markdown("<div class='precaution-box'>⚠️ <b>For Diabetes:</b> Strictly limit sugar and high-carbohydrate foods. Engage in 30 minutes of daily physical walks and track blood glucose regularly.</div>", unsafe_allow_html=True)
+            st.markdown(f"<div class='precaution-box'>⚠️ {t['db_lbl']}: Reduce sugar and carbs intake. Take a 30-min walk daily.</div>", unsafe_allow_html=True)
         else:
-            if lang == "Urdu":
-                st.markdown("<div class='precaution-box'>✅ <b>ذیابیطس کے لیے:</b> آپ کا بلڈ شوگر لیول محفوظ رینج میں ہے۔ متوازن اور فائبر سے بھرپور غذا کا استعمال جاری رکھیں۔</div>", unsafe_allow_html=True)
-            else:
-                st.markdown("<div class='precaution-box'>✅ <b>For Diabetes:</b> Your glucose markers look normal. Continue maintaining a balanced, high-fiber dietary routine.</div>", unsafe_allow_html=True)
+            st.markdown(f"<div class='precaution-box'>✅ {t['db_lbl']}: Glucose levels look fine. Keep up a good diet!</div>", unsafe_allow_html=True)
 
-        # 2. Heart Precautions
         if h_res == 1:
-            if lang == "Urdu":
-                st.markdown("<div class='precaution-box'>⚠️ <b>دل کی صحت کے لیے:</b> کھانے میں نمک اور چکنائی (Oily/Fried items) کا استعمال فوری کم کریں۔ بلڈ پریشر باقاعدگی سے چیک کریں اور ہلکی ورزش کریں۔</div>", unsafe_allow_html=True)
-            else:
-                st.markdown("<div class='precaution-box'>⚠️ <b>For Heart Condition:</b> Reduce salt consumption and avoid fried/saturated fats. Regularly monitor blood pressure and practice light cardiovascular routines.</div>", unsafe_allow_html=True)
+            st.markdown(f"<div class='precaution-box'>⚠️ {t['ht_lbl']}: Restrict salt and fried food. Keep an eye on your BP.</div>", unsafe_allow_html=True)
         else:
-            if lang == "Urdu":
-                st.markdown("<div class='precaution-box'>✅ <b>دل کی صحت کے لیے:</b> دل کی دھڑکن اور بلڈ پریشر کے اشارے بہترین ہیں۔ فعال طرزِ زندگی برقرار رکھیں۔</div>", unsafe_allow_html=True)
-            else:
-                st.markdown("<div class='precaution-box'>✅ <b>For Heart Condition:</b> Excellent cardiovascular vitals. Continue your low-sodium habits and regular exercise.</div>", unsafe_allow_html=True)
+            st.markdown(f"<div class='precaution-box'>✅ {t['ht_lbl']}: Cardiovascular vitals are stable. Stay active.</div>", unsafe_allow_html=True)
 
-        # 3. Obesity Precautions
         if o_res >= 2:
-            if lang == "Urdu":
-                st.markdown("<div class='precaution-box'>⚠️ <b>وزن کے انتظام کے لیے:</b> فاسٹ فوڈ اور سافٹ ڈرنکس سے مکمل پرہیز کریں۔ پورشن کنٹرول (Portion Control) فارمولے پر عمل کریں اور روزانہ ورزش کریں۔</div>", unsafe_allow_html=True)
-            else:
-                st.markdown("<div class='precaution-box'>⚠️ <b>For Weight Management:</b> Avoid processed junk foods and high-calorie soft drinks. Apply strict portion control and stay active daily.</div>", unsafe_allow_html=True)
+            st.markdown(f"<div class='precaution-box'>⚠️ {t['ob_lbl']}: Avoid junk food and soda. Focus on calorie control.</div>", unsafe_allow_html=True)
         else:
-            if lang == "Urdu":
-                st.markdown("<div class='precaution-box'>✅ <b>وزن کے انتظام کے لیے:</b> آپ کا باڈی ماس انڈیکس (BMI) بالکل مثالی زون میں ہے۔ صحت بخش عادات جاری رکھیں۔</div>", unsafe_allow_html=True)
-            else:
-                st.markdown("<div class='precaution-box'>✅ <b>For Weight Management:</b> Your Body Mass Index is within the ideal healthy range. Maintain this active physical lifestyle.</div>", unsafe_allow_html=True)
+            st.markdown(f"<div class='precaution-box'>✅ {t['ob_lbl']}: Body Mass Index (BMI) is completely balanced.</div>", unsafe_allow_html=True)
 
     except Exception as error:
         st.error(f"Inference error details: {str(error)}")
