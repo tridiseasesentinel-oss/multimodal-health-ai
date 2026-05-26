@@ -124,14 +124,14 @@ col1, col2 = st.columns(2)
 with col1:
     weight = st.number_input(t["weight"], min_value=10.0, max_value=250.0, value=60.0, step=0.5)
     
-    # Feet & Inches Selection Components
+    # Feet & Inches UI Inputs
     ht_c1, ht_c2 = st.columns(2)
     with ht_c1:
         ft_val = st.number_input(t["height_ft"], min_value=1, max_value=8, value=5, step=1)
     with ht_c2:
         in_val = st.number_input(t["height_in"], min_value=0, max_value=11, value=6, step=1)
         
-    # Math metric conversion logic
+    # Feet-Inches to Centimeters/Meters conversion formulas
     total_inches = (ft_val * 12) + in_val
     height_cm = total_inches * 2.54
     height_m = height_cm / 100.0
@@ -160,7 +160,7 @@ st.markdown("<br>", unsafe_allow_html=True)
 # ----------------- ACCURATE PREDICTION ENGINE -----------------
 if st.button(t["btn"]):
     
-    # DataFrame conversion matching the exact training columns for XGBoost structure alignment
+    # EXACT column names and case order from your training dataframe structures
     d_df = pd.DataFrame([[p_age, bmi_calc, hba1c, fpg, systolic_bp, cholesterol]], 
                         columns=['Age', 'BMI', 'HbA1c', 'FastingBloodSugar', 'SystolicBP', 'Cholesterol'])
                         
@@ -171,12 +171,12 @@ if st.button(t["btn"]):
                         columns=['Age', 'Gender', 'BMI'])
     
     try:
-        # Step-by-step evaluation
-        d_pred = d_model.predict(d_df)[0]
-        h_pred = h_model.predict(h_df)[0]
-        o_pred = o_model.predict(o_df)[0]
+        # Evaluate predictions strictly
+        d_pred = d_model.predict(d_df)
+        h_pred = h_model.predict(h_df)
+        o_pred = o_model.predict(o_df)
         
-        # Safe extraction for prediction array types
+        # Flatten types to avoid array indexing crashes
         d_res = int(d_pred[0]) if hasattr(d_pred, '__len__') else int(d_pred)
         h_res = int(h_pred[0]) if hasattr(h_pred, '__len__') else int(h_pred)
         o_res = int(o_pred[0]) if hasattr(o_pred, '__len__') else int(o_pred)
@@ -203,7 +203,7 @@ if st.button(t["btn"]):
         # 1. Diabetes Precautions
         if d_res == 1:
             if lang == "Urdu":
-                st.markdown("<div class='precaution-box'>⚠️ <b>ذیابیطس کے لیے:</b> میٹھی اشیاء اور زیادہ کاربوہائیڈریٹس والی غذاؤں سے پرہیز کریں۔ روزانہ باقاعدگی سے 30 منٹ چہل قدمی کریں اور شوگر لیمل مانیٹر کریں۔</div>", unsafe_allow_html=True)
+                st.markdown("<div class='precaution-box'>⚠️ <b>ذیابیطس کے لیے:</b> میٹھی اشیاء اور زیادہ کاربوہائیڈریٹس والی غذاؤں سے پرہیز کریں۔ روزانہ باقاعدگی سے 30 منٹ چہل قدمی کریں اور شوگر لیول مانیٹر کریں۔</div>", unsafe_allow_html=True)
             else:
                 st.markdown("<div class='precaution-box'>⚠️ <b>For Diabetes:</b> Strictly limit sugar and high-carbohydrate foods. Engage in 30 minutes of daily physical walks and track blood glucose regularly.</div>", unsafe_allow_html=True)
         else:
@@ -232,7 +232,7 @@ if st.button(t["btn"]):
                 st.markdown("<div class='precaution-box'>⚠️ <b>For Weight Management:</b> Avoid processed junk foods and high-calorie soft drinks. Apply strict portion control and stay active daily.</div>", unsafe_allow_html=True)
         else:
             if lang == "Urdu":
-                st.markdown("<div class='precaution-box'>✅ <b>وزن کے انتظام کے لیے:</b> آپ کا باڈی ماس انڈیکس (BMI) بالکل یاسر زون میں ہے۔ صحت بخش عادات جاری رکھیں۔</div>", unsafe_allow_html=True)
+                st.markdown("<div class='precaution-box'>✅ <b>وزن کے انتظام کے لیے:</b> آپ کا باڈی ماس انڈیکس (BMI) بالکل مثالی زون میں ہے۔ صحت بخش عادات جاری رکھیں۔</div>", unsafe_allow_html=True)
             else:
                 st.markdown("<div class='precaution-box'>✅ <b>For Weight Management:</b> Your Body Mass Index is within the ideal healthy range. Maintain this active physical lifestyle.</div>", unsafe_allow_html=True)
 
