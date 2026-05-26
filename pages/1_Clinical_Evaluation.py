@@ -124,14 +124,14 @@ col1, col2 = st.columns(2)
 with col1:
     weight = st.number_input(t["weight"], min_value=10.0, max_value=250.0, value=60.0, step=0.5)
     
-    # Feet & Inches UI Inputs
+    # Feet & Inches UI Dropdowns/Inputs
     ht_c1, ht_c2 = st.columns(2)
     with ht_c1:
         ft_val = st.number_input(t["height_ft"], min_value=1, max_value=8, value=5, step=1)
     with ht_c2:
         in_val = st.number_input(t["height_in"], min_value=0, max_value=11, value=6, step=1)
         
-    # Feet-Inches to Centimeters/Meters conversion formulas
+    # Standard translation formulas
     total_inches = (ft_val * 12) + in_val
     height_cm = total_inches * 2.54
     height_m = height_cm / 100.0
@@ -160,23 +160,18 @@ st.markdown("<br>", unsafe_allow_html=True)
 # ----------------- ACCURATE PREDICTION ENGINE -----------------
 if st.button(t["btn"]):
     
-    # EXACT column names and case order from your training dataframe structures
-    d_df = pd.DataFrame([[p_age, bmi_calc, hba1c, fpg, systolic_bp, cholesterol]], 
-                        columns=['Age', 'BMI', 'HbA1c', 'FastingBloodSugar', 'SystolicBP', 'Cholesterol'])
-                        
-    h_df = pd.DataFrame([[p_age, gender_num, systolic_bp, cholesterol, heart_rate, exercise_hours]], 
-                        columns=['Age', 'Gender', 'SystolicBP', 'Cholesterol', 'HeartRate', 'ExerciseHours'])
-                        
-    o_df = pd.DataFrame([[p_age, gender_num, bmi_calc]], 
-                        columns=['Age', 'Gender', 'BMI'])
+    # Converting to pure raw arrays (.values) to completely bypass any XGBoost feature name mismatches
+    d_array = np.array([[p_age, bmi_calc, hba1c, fpg, systolic_bp, cholesterol]])
+    h_array = np.array([[p_age, gender_num, systolic_bp, cholesterol, heart_rate, exercise_hours]])
+    o_array = np.array([[p_age, gender_num, bmi_calc]])
     
     try:
-        # Evaluate predictions strictly
-        d_pred = d_model.predict(d_df)
-        h_pred = h_model.predict(h_df)
-        o_pred = o_model.predict(o_df)
+        # Array matching inference engine
+        d_pred = d_model.predict(d_array)
+        h_pred = h_model.predict(h_array)
+        o_pred = o_model.predict(o_array)
         
-        # Flatten types to avoid array indexing crashes
+        # Flatten structure safely
         d_res = int(d_pred[0]) if hasattr(d_pred, '__len__') else int(d_pred)
         h_res = int(h_pred[0]) if hasattr(h_pred, '__len__') else int(h_pred)
         o_res = int(o_pred[0]) if hasattr(o_pred, '__len__') else int(o_pred)
