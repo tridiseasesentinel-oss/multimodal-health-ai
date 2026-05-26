@@ -45,7 +45,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Cache loading for models
+# Cache loading for models safely
 @st.cache_resource
 def load_diagnostic_models():
     d = pickle.load(open("d_model.pkl", "rb"))
@@ -160,7 +160,7 @@ st.markdown("<br>", unsafe_allow_html=True)
 # ----------------- ACCURATE PREDICTION ENGINE -----------------
 if st.button(t["btn"]):
     
-    # Clean DataFrames targeting exact feature arrays from the model binaries
+    # DataFrame conversion matching the exact training columns for XGBoost structure alignment
     d_df = pd.DataFrame([[p_age, bmi_calc, hba1c, fpg, systolic_bp, cholesterol]], 
                         columns=['Age', 'BMI', 'HbA1c', 'FastingBloodSugar', 'SystolicBP', 'Cholesterol'])
                         
@@ -174,23 +174,25 @@ if st.button(t["btn"]):
         # Step-by-step evaluation
         d_pred = d_model.predict(d_df)[0]
         h_pred = h_model.predict(h_df)[0]
+        o_pred = o_model.predict(o_df)[0]
         
-        # Safe extraction for Obesity prediction to completely eliminate structure or type mismatches
-        o_raw = o_model.predict(o_df)
-        o_pred = int(o_raw[0]) if isinstance(o_raw, (np.ndarray, list)) else int(o_raw)
+        # Safe extraction for prediction array types
+        d_res = int(d_pred[0]) if hasattr(d_pred, '__len__') else int(d_pred)
+        h_res = int(h_pred[0]) if hasattr(h_pred, '__len__') else int(h_pred)
+        o_res = int(o_pred[0]) if hasattr(o_pred, '__len__') else int(o_pred)
         
         st.markdown(f"<br><div class='block-heading'>{t['h3']}</div>", unsafe_allow_html=True)
         
         res1, res2, res3 = st.columns(3)
         with res1:
-            st.metric(label=t["db_lbl"], value=t["pos"] if d_pred == 1 else t["neg"])
+            st.metric(label=t["db_lbl"], value=t["pos"] if d_res == 1 else t["neg"])
         with res2:
-            st.metric(label=t["ht_lbl"], value=t["high_r"] if h_pred == 1 else t["low_r"])
+            st.metric(label=t["ht_lbl"], value=t["high_r"] if h_res == 1 else t["low_r"])
         with res3:
             obesity_map = {0: "Underweight", 1: "Normal Weight", 2: "Overweight", 3: "Obese Class"}
             obesity_map_ur = {0: "کم وزن", 1: "نارمل وزن", 2: "زیادہ وزن", 3: "موٹاپا"}
             
-            final_ob_val = obesity_map_ur.get(o_pred, "نارمل وزن") if lang == "Urdu" else obesity_map.get(o_pred, "Normal Weight")
+            final_ob_val = obesity_map_ur.get(o_res, "نارمل وزن") if lang == "Urdu" else obesity_map.get(o_res, "Normal Weight")
             st.metric(label=t["ob_lbl"], value=final_ob_val)
             
         st.success(t["success"])
@@ -199,9 +201,9 @@ if st.button(t["btn"]):
         st.markdown(f"<br><div class='block-heading'>{t['h4']}</div>", unsafe_allow_html=True)
         
         # 1. Diabetes Precautions
-        if d_pred == 1:
+        if d_res == 1:
             if lang == "Urdu":
-                st.markdown("<div class='precaution-box'>⚠️ <b>ذیابیطس کے لیے:</b> میٹھی اشیاء اور زیادہ کاربوہائیڈریٹس والی غذاؤں سے پرہیز کریں۔ روزانہ باقاعدگی سے 30 منٹ چہل قدمی کریں اور شوگر لیول مانیٹر کریں۔</div>", unsafe_allow_html=True)
+                st.markdown("<div class='precaution-box'>⚠️ <b>ذیابیطس کے لیے:</b> میٹھی اشیاء اور زیادہ کاربوہائیڈریٹس والی غذاؤں سے پرہیز کریں۔ روزانہ باقاعدگی سے 30 منٹ چہل قدمی کریں اور شوگر لیمل مانیٹر کریں۔</div>", unsafe_allow_html=True)
             else:
                 st.markdown("<div class='precaution-box'>⚠️ <b>For Diabetes:</b> Strictly limit sugar and high-carbohydrate foods. Engage in 30 minutes of daily physical walks and track blood glucose regularly.</div>", unsafe_allow_html=True)
         else:
@@ -211,7 +213,7 @@ if st.button(t["btn"]):
                 st.markdown("<div class='precaution-box'>✅ <b>For Diabetes:</b> Your glucose markers look normal. Continue maintaining a balanced, high-fiber dietary routine.</div>", unsafe_allow_html=True)
 
         # 2. Heart Precautions
-        if h_pred == 1:
+        if h_res == 1:
             if lang == "Urdu":
                 st.markdown("<div class='precaution-box'>⚠️ <b>دل کی صحت کے لیے:</b> کھانے میں نمک اور چکنائی (Oily/Fried items) کا استعمال فوری کم کریں۔ بلڈ پریشر باقاعدگی سے چیک کریں اور ہلکی ورزش کریں۔</div>", unsafe_allow_html=True)
             else:
@@ -223,14 +225,14 @@ if st.button(t["btn"]):
                 st.markdown("<div class='precaution-box'>✅ <b>For Heart Condition:</b> Excellent cardiovascular vitals. Continue your low-sodium habits and regular exercise.</div>", unsafe_allow_html=True)
 
         # 3. Obesity Precautions
-        if o_pred >= 2:
+        if o_res >= 2:
             if lang == "Urdu":
                 st.markdown("<div class='precaution-box'>⚠️ <b>وزن کے انتظام کے لیے:</b> فاسٹ فوڈ اور سافٹ ڈرنکس سے مکمل پرہیز کریں۔ پورشن کنٹرول (Portion Control) فارمولے پر عمل کریں اور روزانہ ورزش کریں۔</div>", unsafe_allow_html=True)
             else:
                 st.markdown("<div class='precaution-box'>⚠️ <b>For Weight Management:</b> Avoid processed junk foods and high-calorie soft drinks. Apply strict portion control and stay active daily.</div>", unsafe_allow_html=True)
         else:
             if lang == "Urdu":
-                st.markdown("<div class='precaution-box'>✅ <b>وزن کے انتظام کے لیے:</b> آپ کا باڈی ماس انڈیکس (BMI) بالکل مثالی زون میں ہے۔ صحت بخش عادات جاری رکھیں۔</div>", unsafe_allow_html=True)
+                st.markdown("<div class='precaution-box'>✅ <b>وزن کے انتظام کے لیے:</b> آپ کا باڈی ماس انڈیکس (BMI) بالکل یاسر زون میں ہے۔ صحت بخش عادات جاری رکھیں۔</div>", unsafe_allow_html=True)
             else:
                 st.markdown("<div class='precaution-box'>✅ <b>For Weight Management:</b> Your Body Mass Index is within the ideal healthy range. Maintain this active physical lifestyle.</div>", unsafe_allow_html=True)
 
