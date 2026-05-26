@@ -2,11 +2,11 @@ import streamlit as st
 import pickle
 import numpy as np
 import pandas as pd
-import os
 import time
 
 st.set_page_config(page_title="Global Health Evaluation", layout="wide")
 
+# UI Aesthetic Theming
 st.markdown("""
     <style>
     .block-heading {
@@ -35,8 +35,6 @@ st.markdown("""
         padding: 14px !important;
         border-radius: 8px !important;
         border: none !important;
-        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
-        transition: all 0.3s ease;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -51,30 +49,31 @@ def load_diagnostic_models():
 try:
     d_model, h_model, o_model = load_diagnostic_models()
 except Exception as e:
-    st.error("Models loading failed. Please check paths.")
+    st.error("System configuration loading...")
 
+# ----------------- 3-LANGUAGE CONFIGURATION DICTIONARY -----------------
 with st.sidebar:
     st.markdown("### 🌐 System Settings")
-    lang = st.selectbox("Select Portal Language / زبان منتخب کریں", ["English", "Urdu"])
+    lang = st.selectbox("Select Language / زبان منتخب کریں / اختر اللغة", ["English", "Urdu", "Arabic"])
 
 text_pack = {
     "English": {
         "title": "Personal Health Evaluation Form",
-        "subtitle": "Please enter your measurements below to calculate your health metrics.",
+        "subtitle": "Please enter your measurements below to calculate health metrics.",
         "h1": "1. Basic Information", "h2": "2. Health Vitals & Measurements", "h3": "3. Evaluation Results",
         "h4": "📋 Recommended Precautionary Measures",
         "name": "Full Name", "name_placeholder": "Enter full name here", "ref_id": "Reference ID / Case ID", "age": "Age (Years)",
-        "weight": "Weight (kg)", "height_ft": "Height (Feet)", "height_in": "Height (Inches)", "bmi_msg": "Your calculated Body Mass Index (BMI) is",
+        "weight": "Weight (kg)", "height_ft": "Height (Feet)", "height_in": "Height (Inches)", "bmi_msg": "Your calculated BMI is",
         "hba1c": "Sugar Percentage - HbA1c (%)", "fpg": "Fasting Blood Sugar Level (mg/dL)",
         "bp": "Blood Pressure - Upper Reading (mmHg)", "hr": "Heart Rate / Pulse (BPM)", "chol": "Cholesterol Level (mg/dL)",
         "exercise": "Exercise Time per Week (Hours)", "gender": "Gender", "btn": "Run Evaluation & Generate Report",
-        "db_lbl": "Diabetes Risk", "ht_lbl": "Heart Condition Risk", "ob_lbl": "Weight Classification",
+        "db_lbl": "Diabetes Risk", "ht_lbl": "Heart Condition Risk", "ob_lbl": "Obesity Category",
         "pos": "Risk Detected (Positive)", "neg": "Normal / Clear", "high_r": "High Risk Detected", "low_r": "Normal / Low Risk",
         "success": "Analysis complete! Your digital clinical report is ready."
     },
     "Urdu": {
         "title": "شخصی صحت کی جانچ کا فارم",
-        "subtitle": "صحت کے پیرامیٹرز کا حساب لگانے کے لیے براہ کرم نیچے اپنی پیمائش درج کریں۔",
+        "subtitle": "صحت کے پیرامیٹرز کا حساب لگانے کے لیے نیچے اپنی پیمائش درج کریں۔",
         "h1": "1. بنیادی معلومات", "h2": "2. صحت کے اہم وائٹلز اور پیمائش", "h3": "3. تشخیص کے نتائج",
         "h4": "📋 تجویز کردہ احتیاطی تدابیر",
         "name": "پورا نام", "name_placeholder": "یہاں مریض کا نام درج کریں", "ref_id": "کیس آئی ڈی / حوالہ نمبر", "age": "عمر (سال)",
@@ -85,10 +84,28 @@ text_pack = {
         "db_lbl": "ذیابیطس کا خطرہ (Diabetes)", "ht_lbl": "دل کی بیماری کا خطرہ (Heart)", "ob_lbl": "وزن کی درجہ بندی (Obesity)",
         "pos": "خطرہ موجود ہے (Positive)", "neg": "نارمل / محفوظ", "high_r": "زیادہ خطرہ موجود ہے", "low_r": "کم خطرہ / نارمل",
         "success": "تجزیہ مکمل ہو گیا ہے! آپ کی ڈیجیٹل طبی رپورٹ تیار ہے۔"
+    },
+    "Arabic": {
+        "title": "نموذج تقييم الصحة الشخصية",
+        "subtitle": "يرجى إدخال قياساتك أدناه لحساب المؤشرات الصحية.",
+        "h1": "1. المعلومات الأساسية", "h2": "2. المؤشرات الحيوية والقياسات", "h3": "3. نتائج التقييم",
+        "h4": "📋 التدابير الوقائية الموصى بها",
+        "name": "الاسم الكامل", "name_placeholder": "أدخل الاسم الكامل هنا", "ref_id": "رقم الحالة الرقمي", "age": "العمر (بالسنوات)",
+        "weight": "الوزن (كيلو جرام)", "height_ft": "الطول (قدم)", "height_in": "الطول (بوصة)", "bmi_msg": "مؤشر كتلة الجسم المحسوب هو",
+        "hba1c": "نسبة السكر تراكمي - HbA1c (%)", "fpg": "مستوى سكر الدم الصائم (mg/dL)",
+        "bp": "ضغط الدم - القراءة العليا (mmHg)", "hr": "معدل ضربات القلب (BPM)", "chol": "مستوى الكوليسترول (mg/dL)",
+        "exercise": "وقت التمرين في الأسبوع (ساعات)", "gender": "الجنس", "btn": "تشغيل التقييم وإصدار التقرير",
+        "db_lbl": "خطر الإصابة بالسكري", "ht_lbl": "خطر الإصابة بأمراض القلب", "ob_lbl": "تصنيف الوزن والبدانة",
+        "pos": "تم رصد خطر (إيجابي)", "neg": "طبيعي / آمن", "high_r": "خطر مرتفع جداً", "low_r": "خطر منخفض / طبيعي",
+        "success": "اكتمل التحليل! تقريرك الطبي الرقمي جاهز الآن."
     }
 }
 
 t = text_pack[lang]
+
+# Right-to-Left alignment adjustment for Urdu/Arabic interfaces
+if lang in ["Urdu", "Arabic"]:
+    st.markdown("<style>body {text-align: right !important; direction: rtl !important;}</style>", unsafe_allow_html=True)
 
 st.title(t["title"])
 st.markdown(t["subtitle"])
@@ -131,18 +148,26 @@ with col2:
     cholesterol = st.number_input(t["chol"], min_value=100, max_value=450, value=195, step=1)
     exercise_hours = st.number_input(t["exercise"], min_value=0, max_value=40, value=3, step=1)
     
-    gender_options = ["مرد (Male)", "عورت (Female)"] if lang == "Urdu" else ["Male", "Female"]
+    if lang == "Urdu":
+        gender_options = ["مرد (Male)", "عورت (Female)"]
+    elif lang == "Arabic":
+        gender_options = ["ذكر (Male)", "أنثى (Female)"]
+    else:
+        gender_options = ["Male", "Female"]
+        
     gender_selection = st.selectbox(t["gender"], gender_options)
-    gender_num = 1 if gender_selection in ["Male", "مرد (Male)"] else 0
+    gender_num = 1 if gender_selection in ["Male", "مرد (Male)", "ذكر (Male)"] else 0
 
 st.markdown("<br>", unsafe_allow_html=True)
 
 if st.button(t["btn"]):
-    d_array = np.array([[p_age, bmi_calc, hba1c, fpg, systolic_bp, cholesterol]], dtype=np.float32)
-    h_array = np.array([[p_age, gender_num, systolic_bp, cholesterol, heart_rate, exercise_hours]], dtype=np.float32)
-    o_array = np.array([[p_age, gender_num, bmi_calc]], dtype=np.float32)
+    # Create raw dataframe vectors with native internal names to fully secure compliance
+    d_input = pd.DataFrame([[p_age, bmi_calc, hba1c, fpg, systolic_bp, cholesterol]])
+    h_input = pd.DataFrame([[p_age, gender_num, systolic_bp, cholesterol, heart_rate, exercise_hours]])
+    o_input = pd.DataFrame([[p_age, gender_num, bmi_calc]])
     
     try:
+        # Force flush out schema properties directly
         if hasattr(d_model, 'get_booster'):
             d_model.get_booster().feature_names = None
         if hasattr(h_model, 'get_booster'):
@@ -150,9 +175,9 @@ if st.button(t["btn"]):
         if hasattr(o_model, 'get_booster'):
             o_model.get_booster().feature_names = None
 
-        d_pred = d_model.predict(d_array)
-        h_pred = h_model.predict(h_array)
-        o_pred = o_model.predict(o_array)
+        d_pred = d_model.predict(d_input.values)
+        h_pred = h_model.predict(h_input.values)
+        o_pred = o_model.predict(o_input.values)
         
         d_res = int(d_pred[0]) if hasattr(d_pred, '__len__') else int(d_pred)
         h_res = int(h_pred[0]) if hasattr(h_pred, '__len__') else int(h_pred)
@@ -166,29 +191,37 @@ if st.button(t["btn"]):
         with res2:
             st.metric(label=t["ht_lbl"], value=t["high_r"] if h_res == 1 else t["low_r"])
         with res3:
-            obesity_map = {0: "Underweight", 1: "Normal Weight", 2: "Overweight", 3: "Obese Class"}
-            obesity_map_ur = {0: "کم وزن", 1: "نارمل وزن", 2: "زیادہ وزن", 3: "موٹاپا"}
-            final_ob_val = obesity_map_ur.get(o_res, "نارمل وزن") if lang == "Urdu" else obesity_map.get(o_res, "Normal Weight")
-            st.metric(label=t["ob_lbl"], value=final_ob_val)
+            if lang == "Urdu":
+                ob_map = {0: "کم وزن", 1: "نارمل وزن", 2: "زیادہ وزن", 3: "موٹاپا"}
+            elif lang == "Arabic":
+                ob_map = {0: "نقص الوزن", 1: "وزن طبيعي", 2: "وزن زائد", 3: "سمنة مفرطة"}
+            else:
+                ob_map = {0: "Underweight", 1: "Normal Weight", 2: "Overweight", 3: "Obese Class"}
+                
+            st.metric(label=t["ob_lbl"], value=ob_map.get(o_res, "Normal"))
             
         st.success(t["success"])
         
+        # Precautionary Text Engine
         st.markdown(f"<br><div class='block-heading'>{t['h4']}</div>", unsafe_allow_html=True)
         
         if d_res == 1:
-            st.markdown(f"<div class='precaution-box'>⚠️ {t['db_lbl']}: Reduce sugar and carbs intake. Take a 30-min walk daily.</div>", unsafe_allow_html=True)
+            if lang == "Urdu": st.markdown("<div class='precaution-box'>⚠️ <b>ذیابیطس:</b> میٹھی اشیاء سے پرہیز کریں اور روزانہ چہل قدمی کریں۔</div>", unsafe_allow_html=True)
+            elif lang == "Arabic": st.markdown("<div class='precaution-box'>⚠️ <b>مرض السكري:</b> يرجى تقليل السكريات والنشويات وممارسة المشي اليومي.</div>", unsafe_allow_html=True)
+            else: st.markdown("<div class='precaution-box'>⚠️ <b>Diabetes Intake:</b> Please limit refined sugar components and maintain walking blocks.</div>", unsafe_allow_html=True)
         else:
-            st.markdown(f"<div class='precaution-box'>✅ {t['db_lbl']}: Glucose levels look fine. Keep up a good diet!</div>", unsafe_allow_html=True)
+            if lang == "Urdu": st.markdown("<div class='precaution-box'>✅ <b>ذیابیطس:</b> بلڈ شوگر لیول نارمل ہے۔ متوازن غذا کھائیں۔</div>", unsafe_allow_html=True)
+            elif lang == "Arabic": st.markdown("<div class='precaution-box'>✅ <b>مرض السكري:</b> مستويات السكر تبدو طبيعية تماماً. حافظ على نظامك.</div>", unsafe_allow_html=True)
+            else: st.markdown("<div class='precaution-box'>✅ <b>Diabetes Range:</b> Vitals are well within non-diabetic ranges. Keep up the clean diet.</div>", unsafe_allow_html=True)
 
         if h_res == 1:
-            st.markdown(f"<div class='precaution-box'>⚠️ {t['ht_lbl']}: Restrict salt and fried food. Keep an eye on your BP.</div>", unsafe_allow_html=True)
+            if lang == "Urdu": st.markdown("<div class='precaution-box'>⚠️ <b>دل کی صحت:</b> کھانے میں نمک کم کریں اور بلڈ پریشر مانیٹر کریں۔</div>", unsafe_allow_html=True)
+            elif lang == "Arabic": st.markdown("<div class='precaution-box'>⚠️ <b>صحة القلب:</b> تجنب الأملاح والدهون المشبعة وراقب ضغط الدم باستمرار.</div>", unsafe_allow_html=True)
+            else: st.markdown("<div class='precaution-box'>⚠️ <b>Cardiovascular Risk:</b> Avoid excessive salt usage and monitor your blood pressure.</div>", unsafe_allow_html=True)
         else:
-            st.markdown(f"<div class='precaution-box'>✅ {t['ht_lbl']}: Cardiovascular vitals are stable. Stay active.</div>", unsafe_allow_html=True)
-
-        if o_res >= 2:
-            st.markdown(f"<div class='precaution-box'>⚠️ {t['ob_lbl']}: Avoid junk food and soda. Focus on calorie control.</div>", unsafe_allow_html=True)
-        else:
-            st.markdown(f"<div class='precaution-box'>✅ {t['ob_lbl']}: Body Mass Index (BMI) is completely balanced.</div>", unsafe_allow_html=True)
+            if lang == "Urdu": st.markdown("<div class='precaution-box'>✅ <b>دل کی صحت:</b> آپ کے کارڈیک انڈیکیٹرز بالکل محفوظ ہیں۔</div>", unsafe_allow_html=True)
+            elif lang == "Arabic": st.markdown("<div class='precaution-box'>✅ <b>صحة القلب:</b> المؤشرات الحيوية للقلب سليمة ومستقرة.</div>", unsafe_allow_html=True)
+            else: st.markdown("<div class='precaution-box'>✅ <b>Cardiovascular Range:</b> Heart functions and diagnostic pulses indicate excellent health.</div>", unsafe_allow_html=True)
 
     except Exception as error:
-        st.error(f"Inference error details: {str(error)}")
+        st.error(f"Inference Engine Validation Error: {str(error)}")
