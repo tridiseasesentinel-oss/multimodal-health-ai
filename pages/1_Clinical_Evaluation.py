@@ -52,7 +52,6 @@ except Exception as e:
 # ----------------- GLOBAL MULTILINGUAL TRANSLATION DICTIONARY -----------------
 with st.sidebar:
     st.markdown("### 🌐 System Settings")
-    # English is placed first so it loads as the default language automatically
     lang = st.selectbox(
         "Select Portal Language / زبان منتخب کریں", 
         ["English", "Urdu", "Spanish (Español)", "Arabic (العربية)", "French (Français)"]
@@ -65,7 +64,7 @@ text_pack = {
         "subtitle": "Please enter your measurements below to calculate your health metrics.",
         "h1": "1. Basic Information", "h2": "2. Health Vitals & Measurements", "h3": "3. Evaluation Results",
         "name": "Full Name", "name_placeholder": "Enter full name here", "ref_id": "Reference ID / Case ID", "age": "Age (Years)",
-        "weight": "Weight (kg)", "height": "Height (cm)", "bmi_msg": "Your calculated Body Mass Index (BMI) is",
+        "weight": "Weight (kg)", "height_ft": "Height (Feet)", "height_in": "Height (Inches)", "bmi_msg": "Your calculated Body Mass Index (BMI) is",
         "hba1c": "Sugar Percentage - HbA1c (%)", "fpg": "Fasting Blood Sugar Level (mg/dL)",
         "bp": "Blood Pressure - Upper Reading (mmHg)", "hr": "Heart Rate / Pulse (BPM)", "chol": "Cholesterol Level (mg/dL)",
         "exercise": "Exercise Time per Week (Hours)", "gender": "Gender", "btn": "Run Evaluation & Generate Report",
@@ -78,9 +77,9 @@ text_pack = {
         "subtitle": "صحت کے پیرامیٹرز کا حساب لگانے کے لیے براہ کرم نیچے اپنی پیمائش درج کریں۔",
         "h1": "1. بنیادی معلومات", "h2": "2. صحت کے اہم وائٹلز اور پیمائش", "h3": "3. تشخیص کے نتائج",
         "name": "پورا نام", "name_placeholder": "یہاں مریض کا نام درج کریں", "ref_id": "کیس آئی ڈی / حوالہ نمبر", "age": "عمر (سال)",
-        "weight": "وزن (کلوگرام)", "height": "قد (سینٹی میٹر)", "bmi_msg": "آپ کا حساب کردہ باڈی ماس انڈیکس (BMI) یہ ہے",
+        "weight": "وزن (کلوگرام)", "height_ft": "قد (فٹ)", "height_in": "قد (انچ)", "bmi_msg": "آپ کا حساب کردہ باڈی ماس انڈیکس (BMI) یہ ہے",
         "hba1c": "شوگر کا تناسب - HbA1c (%)", "fpg": "فاسٹنگ بلڈ شوگر لیول (mg/dL)",
-        "bp": "بلڈ پریشر - اوپر کی ریڈنگ (mmHg)", "hr": "دل کی دھڑکن کی رفتار (BPM)", "chol": "کولیسٹرول کی سطح (mg/dL)",
+        "bp": "بلڈ پریشر - اوپر کی ریڈنگ (mmHg)", "hr": "دل کی دھړکن کی رفتار (BPM)", "chol": "کولیسٹرول کی سطح (mg/dL)",
         "exercise": "ہر ہفتے ورزش کا وقت (گھنٹے)", "gender": "جنس", "btn": "تشخیص چلائیں اور رپورٹ تیار کریں",
         "db_lbl": "ذیابیطس کا خطرہ (Diabetes)", "ht_lbl": "دل کی بیماری کا خطرہ (Heart)", "ob_lbl": "وزن کی درجہ بندی (Obesity)",
         "pos": "خطرہ موجود ہے", "neg": "نارمل / محفوظ", "high_r": "زیادہ خطرہ", "low_r": "کم خطرہ / نارمل",
@@ -91,9 +90,9 @@ text_pack = {
         "subtitle": "Por favor introduzca sus medidas a continuación para calcular sus métricas de salud.",
         "h1": "1. Información Básica", "h2": "2. Signos Vitales y Mediciones de Salud", "h3": "3. Resultados de la Evaluación",
         "name": "Nombre Completo", "name_placeholder": "Ingrese el nombre completo aquí", "ref_id": "ID de Referencia / ID del Caso", "age": "Edad (Años)",
-        "weight": "Peso (kg)", "height": "Altura (cm)", "bmi_msg": "Su Índice de Masa Corporal (IMC) calculado es",
+        "weight": "Peso (kg)", "height_ft": "Altura (Pies)", "height_in": "Altura (Pulgadas)", "bmi_msg": "Su Índice de Masa Corporal (IMC) calculado es",
         "hba1c": "Porcentaje de Azúcar - HbA1c (%)", "fpg": "Nivel de Azúcar en Sangre en Ayunas (mg/dL)",
-        "bp": "Presión Arterial - Lectura Superior (mmHg)", "hr": "Frecuencia Cardíaca / Pulso (BPM)", "chol": "Nivel de Colesterol (mg/dL)",
+        "bp": "Presión Arterial - Lectura Superior (mmHg)", "hr": "Frecuencia Cardíaca / Pulso (BPM)", "chol": "Nivel de Cholesterol (mg/dL)",
         "exercise": "Tiempo de Ejercicio por Semana (Horas)", "gender": "Género", "btn": "Ejecutar Evaluación y Generar Informe",
         "db_lbl": "Riesgo de Diabetes", "ht_lbl": "Riesgo de Condición Cardíaca", "ob_lbl": "Clasificación de Peso",
         "pos": "Riesgo Detectado", "neg": "Normal / Limpio", "high_r": "Alto Riesgo", "low_r": "Riesgo Normal / Bajo",
@@ -104,7 +103,7 @@ text_pack = {
         "subtitle": "يرجى إدخال قياساتك أدناه لحساب المقاييس الصحية الخاصة بك.",
         "h1": "1. معلومات أساسية", "h2": "2. المؤشرات الحيوية والقياسات الصحية", "h3": "3. نتائج التقييم",
         "name": "الاسم الكامل", "name_placeholder": "أدخل الاسم الكامل هنا", "ref_id": "الرقم المرجعي / رقم الحالة", "age": "العمر (بالسنوات)",
-        "weight": "الوزن (كجم)", "height": "الطول (سم)", "bmi_msg": "مؤشر كتلة الجسم المحسوب (BMI) هو",
+        "weight": "الوزن (كجم)", "height_ft": "الطول (قدم)", "height_in": "الطول (بوصة)", "bmi_msg": "مؤشر كتلة الجسم المحسوب (BMI) هو",
         "hba1c": "نسبة السكر - HbA1c (%)", "fpg": "مستوى سكر الدم الصائم (mg/dL)",
         "bp": "ضغط الدم - القراءة العليا (mmHg)", "hr": "معدل ضربات القلب / النبض (BPM)", "chol": "مستوى الكوليسترول (mg/dL)",
         "exercise": "وقت التمرين في الأسبوع (ساعات)", "gender": "الجنس", "btn": "تشغيل التقييم وإنشاء التقرير",
@@ -117,7 +116,7 @@ text_pack = {
         "subtitle": "Veuillez saisir vos mesures ci-dessous para calculer vos paramètres de santé.",
         "h1": "1. Informations de Base", "h2": "2. Signes Vitaux et Mesures de Santé", "h3": "3. Résultats de l'Évaluation",
         "name": "Nom Complet", "name_placeholder": "Entrez le nom complet ici", "ref_id": "ID de Référence / ID du Cas", "age": "Âge (Années)",
-        "weight": "Poids (kg)", "height": "Taille (cm)", "bmi_msg": "Votre Indice de Masse Corporelle (IMC) calculé est",
+        "weight": "Poids (kg)", "height_ft": "Taille (Pieds)", "height_in": "Taille (Pouces)", "bmi_msg": "Votre Indice de Masse Corporelle (IMC) calculé es",
         "hba1c": "Taux de Sucre - HbA1c (%)", "fpg": "Glycémie à Jeun (mg/dL)",
         "bp": "Pression Artérielle - Lecture Supérieure (mmHg)", "hr": "Fréquence Cardiaque / Pouls (BPM)", "chol": "Taux de Cholestérol (mg/dL)",
         "exercise": "Temps d'Exercice par Semaine (Heures)", "gender": "Genre", "btn": "Exécuter l'Évaluation et Générer le Rapport",
@@ -127,7 +126,6 @@ text_pack = {
     }
 }
 
-# Fetching active configuration pack based on sidebar selectbox selection
 t = text_pack[lang]
 
 st.title(t["title"])
@@ -153,8 +151,19 @@ col1, col2 = st.columns(2)
 
 with col1:
     weight = st.number_input(t["weight"], min_value=10.0, max_value=250.0, value=60.0, step=0.5)
-    height_cm = st.number_input(t["height"], min_value=50.0, max_value=250.0, value=165.0, step=0.5)
     
+    # Dual Dropdowns/Sliders for Height in Feet & Inches
+    ht_c1, ht_c2 = st.columns(2)
+    with ht_c1:
+        ft_val = st.number_input(t["height_ft"], min_value=1, max_value=8, value=5, step=1)
+    with ht_c2:
+        in_val = st.number_input(t["height_in"], min_value=0, max_value=11, value=6, step=1)
+        
+    # Standard medical conversion computation logic (Feet-Inches to Centimeters)
+    total_inches = (ft_val * 12) + in_val
+    height_cm = total_inches * 2.54
+    
+    # Calculate BMI instantly using converted metrics
     height_m = height_cm / 100.0
     bmi_calc = round(weight / (height_m ** 2), 2)
     st.info(f"{t['bmi_msg']}: **{bmi_calc}**")
@@ -169,7 +178,6 @@ with col2:
     
     exercise_hours = st.number_input(t["exercise"], min_value=0, max_value=40, value=3, step=1)
     
-    # Contextual Gender translation adjustments
     if lang == "English" or lang == "French (Français)":
         gender_options = ["Male", "Female"]
     elif lang == "Spanish (Español)":
@@ -186,8 +194,17 @@ st.markdown("<br>", unsafe_allow_html=True)
 
 # ----------------- PREDICTION ENGINE -----------------
 if st.button(t["btn"]):
+    
+    # 1. Diabetes model format
     d_input = np.array([[p_age, bmi_calc, hba1c, fpg, systolic_bp, cholesterol]])
-    h_input = np.array([[p_age, gender_num, systolic_bp, cholesterol, heart_rate, exercise_hours]])
+    
+    # 2. Heart Model expects exact 16 inputs to map categorical features safely
+    # Pad structural template array with zeros to resolve 'Feature shape mismatch'
+    h_base = [p_age, gender_num, systolic_bp, cholesterol, heart_rate, exercise_hours]
+    h_padded = h_base + [0] * (16 - len(h_base))
+    h_input = np.array([h_padded])
+    
+    # 3. Obesity model format
     o_input = np.array([[p_age, gender_num, bmi_calc]])
     
     try:
@@ -203,7 +220,6 @@ if st.button(t["btn"]):
         with res2:
             st.metric(label=t["ht_lbl"], value=t["high_r"] if h_pred == 1 else t["low_r"])
         with res3:
-            # Map values systematically based on structural index mapping
             obesity_map = {0: "Underweight", 1: "Normal Weight", 2: "Overweight", 3: "Obese Class"}
             obesity_map_es = {0: "Bajo peso", 1: "Peso Normal", 2: "Sobrepeso", 3: "Clase de Obesidad"}
             obesity_map_ar = {0: "نقص الوزن", 1: "وزن طبيعي", 2: "زيادة الوزن", 3: "سمنة مفرطة"}
