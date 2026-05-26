@@ -1,6 +1,7 @@
 import streamlit as st
 import pickle
 import numpy as np
+import pandas as pd
 import os
 import time
 
@@ -25,7 +26,7 @@ st.markdown("""
         margin-top: 10px;
     }
     div.stButton > button:first-child {
-        background: linear-gradient(90deg, #1e3a8a 0%, #3b82f6 100%) !important; /* Premium Gradient */
+        background: linear-gradient(90deg, #1e3a8a 0%, #3b82f6 100%) !important;
         color: white !important;
         font-size: 18px !important;
         font-weight: 700 !important;
@@ -54,7 +55,6 @@ try:
     d_model, h_model, o_model = load_diagnostic_models()
 except Exception as e:
     st.error("System configuration files are initializing. Please hold on.")
-
 
 # ----------------- GLOBAL MULTILINGUAL TRANSLATION DICTIONARY -----------------
 with st.sidebar:
@@ -93,52 +93,11 @@ text_pack = {
         "db_lbl": "ذیابیطس کا خطرہ (Diabetes)", "ht_lbl": "دل کی بیماری کا خطرہ (Heart)", "ob_lbl": "وزن کی درجہ بندی (Obesity)",
         "pos": "خطرہ موجود ہے (Positive)", "neg": "نارمل / محفوظ", "high_r": "زیادہ خطرہ موجود ہے", "low_r": "کم خطرہ / نارمل",
         "success": "تجزیہ مکمل ہو گیا ہے! آپ کی ڈیجیٹل طبی رپورٹ تیار ہے۔"
-    },
-    "Spanish (Español)": {
-        "title": "Formulario de Evaluación de Salud Personal",
-        "subtitle": "Por favor introduzca sus medidas a continuación para calcular sus métricas de salud.",
-        "h1": "1. Información Básica", "h2": "2. Signos Vitales y Mediciones de Salud", "h3": "3. Resultados de la Evaluación",
-        "h4": "📋 Medidas Precautorias Recomendadas",
-        "name": "Nombre Completo", "name_placeholder": "Ingrese el nombre completo aquí", "ref_id": "ID de Referencia / ID del Caso", "age": "Edad (Años)",
-        "weight": "Peso (kg)", "height_ft": "Altura (Pies)", "height_in": "Altura (Pulgadas)", "bmi_msg": "Su Índice de Masa Corporal (IMC) calculado es",
-        "hba1c": "Porcentaje de Azúcar - HbA1c (%)", "fpg": "Nivel de Azúcar en Sangre en Ayunas (mg/dL)",
-        "bp": "Presión Arterial - Lectura Superior (mmHg)", "hr": "Frecuencia Cardíaca / Pulso (BPM)", "chol": "Nivel de Colesterol (mg/dL)",
-        "exercise": "Tiempo de Ejercicio por Semana (Horas)", "gender": "Género", "btn": "Ejecutar Evaluación y Generar Informe",
-        "db_lbl": "Riesgo de Diabetes", "ht_lbl": "Riesgo de Condición Cardíaca", "ob_lbl": "Clasificación de Peso",
-        "pos": "Riesgo Detectado", "neg": "Normal / Limpio", "high_r": "Alto Riesgo", "low_r": "Riesgo Normal / Bajo",
-        "success": "¡Análisis completo! Su informe clínico digital está listo."
-    },
-    "Arabic (العربية)": {
-        "title": "نموذج تقييم الصحة الشخصية",
-        "subtitle": "يرجى إدخال قياساتك أدناه لحساب المقاييس الصحية الخاصة بك.",
-        "h1": "1. معلومات أساسية", "h2": "2. المؤشرات الحيوية والقياسات الصحية", "h3": "3. نتائج التقييم",
-        "h4": "📋 التدابير الوقائية الموصى بها",
-        "name": "الاسم الكامل", "name_placeholder": "أدخل الاسم الكامل هنا", "ref_id": "الرقم المرجعي / رقم الحالة", "age": "العمر (بالسنوات)",
-        "weight": "الوزن (كجم)", "height_ft": "الطول (قدم)", "height_in": "الطول (بوصة)", "bmi_msg": "مؤشر كتلة الجسم المحسوب (BMI) هو",
-        "hba1c": "نسبة السكر - HbA1c (%)", "fpg": "مستوى سكر الدم الصائم (mg/dL)",
-        "bp": "ضغط الدم - القراءة العليا (mmHg)", "hr": "معدل ضربات القلب / النبض (BPM)", "chol": "مستوى الكوليسترول (mg/dL)",
-        "exercise": "وقت التمرين في الأسبوع (ساعات)", "gender": "الجنس", "btn": "تشغيل التقييم وإنشاء التقرير",
-        "db_lbl": "خطر الإصابة بالسكري", "ht_lbl": "خطر الإصابة بأمراض القلب", "ob_lbl": "تصنيف الوزن",
-        "pos": "تم رصد خطر", "neg": "طبيعي / سليم", "high_r": "خطر مرتفع", "low_r": "طبيعي / خطر منخفض",
-        "success": "اكتمل التحليل! تقريرك الطبي الرقمي جاهز."
-    },
-    "French (Français)": {
-        "title": "Formulaire d'Évaluation de la Santé Personnelle",
-        "subtitle": "Veuillez saisir vos mesures ci-dessous para calculer vos paramètres de santé.",
-        "h1": "1. Informations de Base", "h2": "2. Signes Vitaux et Mesures de Santé", "h3": "3. Résultats de l'Évaluation",
-        "h4": "📋 Mesures de Précaution Recommandées",
-        "name": "Nom Complet", "name_placeholder": "Entrez le nom complet ici", "ref_id": "ID de Référence / ID del Caso", "age": "Âge (Années)",
-        "weight": "Poids (kg)", "height_ft": "Taille (Pieds)", "height_in": "Taille (Pouces)", "bmi_msg": "Votre Indice de Masse Corporelle (IMC) calculé es",
-        "hba1c": "Taux de Sucre - HbA1c (%)", "fpg": "Glycémie à Jeun (mg/dL)",
-        "bp": "Pression Artérielle - Lecture Supérieure (mmHg)", "hr": "Fréquence Cardiaque / Pouls (BPM)", "chol": "Taux de Cholestérol (mg/dL)",
-        "exercise": "Temps d'Exercice par Semaine (Heures)", "gender": "Genre", "btn": "Exécuter l'Évaluation et Générer le Rapport",
-        "db_lbl": "Risque de Diabète", "ht_lbl": "Risque Cardiaque", "ob_lbl": "Classification du Poids",
-        "pos": "Risque Détecté", "neg": "Normal / Clair", "high_r": "Risque Élevé", "low_r": "Normal / Risque Faible",
-        "success": "Analyse complétée! Votre rapport clinique digital est prêt."
     }
 }
 
-t = text_pack[lang]
+# Fallback mechanism for other languages to avoid KeyError
+t = text_pack.get(lang, text_pack["English"])
 
 st.title(t["title"])
 st.markdown(t["subtitle"])
@@ -171,7 +130,7 @@ with col1:
     with ht_c2:
         in_val = st.number_input(t["height_in"], min_value=0, max_value=11, value=6, step=1)
         
-    # Math metric conversion formulas
+    # Feet-Inches to Centimeters conversion
     total_inches = (ft_val * 12) + in_val
     height_cm = total_inches * 2.54
     height_m = height_cm / 100.0
@@ -187,32 +146,34 @@ with col2:
     cholesterol = st.number_input(t["chol"], min_value=100, max_value=450, value=195, step=1)
     exercise_hours = st.number_input(t["exercise"], min_value=0, max_value=40, value=3, step=1)
     
-    if lang == "English" or lang == "French (Français)":
-        gender_options = ["Male", "Female"]
-    elif lang == "Spanish (Español)":
-        gender_options = ["Masculino", "Femenino"]
-    elif lang == "Arabic (العربية)":
-        gender_options = ["ذكر", "أنثى"]
-    else:
+    if lang == "Urdu":
         gender_options = ["مرد (Male)", "عورت (Female)"]
+    else:
+        gender_options = ["Male", "Female"]
         
     gender_selection = st.selectbox(t["gender"], gender_options)
-    gender_num = 1 if gender_selection in ["Male", "Masculino", "ذكر", "مرد (Male)"] else 0
+    gender_num = 1 if gender_selection in ["Male", "مرد (Male)"] else 0
 
 st.markdown("<br>", unsafe_allow_html=True)
 
 # ----------------- ACCURATE PREDICTION ENGINE -----------------
 if st.button(t["btn"]):
     
-    # Matching exact training notebook structure explicitly:
-    d_input = np.array([[p_age, bmi_calc, hba1c, fpg, systolic_bp, cholesterol]]) # 6 features
-    h_input = np.array([[p_age, gender_num, systolic_bp, cholesterol, heart_rate, exercise_hours]]) # 6 features
-    o_input = np.array([[p_age, gender_num, bmi_calc]]) # 3 features
+    # DataFrame conversion with exact feature names matching the training notebook columns
+    d_df = pd.DataFrame([[p_age, bmi_calc, hba1c, fpg, systolic_bp, cholesterol]], 
+                        columns=['Age', 'BMI', 'HbA1c', 'FastingBloodSugar', 'SystolicBP', 'Cholesterol'])
+                        
+    h_df = pd.DataFrame([[p_age, gender_num, systolic_bp, cholesterol, heart_rate, exercise_hours]], 
+                        columns=['Age', 'Gender', 'SystolicBP', 'Cholesterol', 'HeartRate', 'ExerciseHours'])
+                        
+    o_df = pd.DataFrame([[p_age, gender_num, bmi_calc]], 
+                        columns=['Age', 'Gender', 'BMI'])
     
     try:
-        d_pred = d_model.predict(d_input)[0]
-        h_pred = h_model.predict(h_input)[0]
-        o_pred = o_model.predict(o_input)[0]
+        # Running accurate matching predictions
+        d_pred = d_model.predict(d_df)[0]
+        h_pred = h_model.predict(h_df)[0]
+        o_pred = o_model.predict(o_df)[0]
         
         st.markdown(f"<br><div class='block-heading'>{t['h3']}</div>", unsafe_allow_html=True)
         
@@ -236,38 +197,38 @@ if st.button(t["btn"]):
         # 1. Diabetes Precautions
         if d_pred == 1:
             if lang == "Urdu":
-                st.markdown("<div class='precaution-box'>⚠️ <b>ذیابیطس کے لیے:</b> میٹھی اشیاء اور کاربوہائیڈریٹس سے پرہیز کریں۔ روزانہ کم از کم 30 منٹ چہل قدمی کریں اور بلڈ شوگر باقاعدگی سے چیک کریں۔</div>", unsafe_allow_html=True)
+                st.markdown("<div class='precaution-box'>⚠️ <b>ذیابیطس کے لیے:</b> میٹھی اشیاء اور کاربوہائیڈریٹس (Carbs) سے پرہیز کریں۔ روزانہ کم از کم 30 منٹ چہل قدمی کریں اور بلڈ شوگر باقاعدگی سے چیک کریں۔</div>", unsafe_allow_html=True)
             else:
-                st.markdown("<div class='precaution-box'>⚠️ <b>For Diabetes:</b> Reduce carbohydrate and sugar intake. Engage in 30 minutes of daily aerobic exercise, monitor blood glucose regularly, and consult an endocrinologist.</div>", unsafe_allow_html=True)
+                st.markdown("<div class='precaution-box'>⚠️ <b>For Diabetes:</b> Reduce carbohydrate and sugar intake. Engage in 30 minutes of daily aerobic exercise, monitor blood glucose regularly, and consult a physician.</div>", unsafe_allow_html=True)
         else:
             if lang == "Urdu":
-                st.markdown("<div class='precaution-box'>✅ <b>ذیابیطس کے لیے:</b> آپ کا شوگر لیول نارمل ہے۔ متوازن غذا کا استعمال جاری رکھیں تاکہ یہ برقرار رہے۔</div>", unsafe_allow_html=True)
+                st.markdown("<div class='precaution-box'>✅ <b>ذیابیطس کے لیے:</b> آپ کا شوگر لیول محفوظ ہے۔ متوازن غذا کا استعمال جاری رکھیں تاکہ یہ برقرار رہے۔</div>", unsafe_allow_html=True)
             else:
-                st.markdown("<div class='precaution-box'>✅ <b>For Diabetes:</b> Maintain a balanced, high-fiber lifestyle to keep glucose levels stable.</div>", unsafe_allow_html=True)
+                st.markdown("<div class='precaution-box'>✅ <b>For Diabetes:</b> Your profile looks clean. Maintain a balanced, high-fiber dietary lifestyle.</div>", unsafe_allow_html=True)
 
         # 2. Heart Precautions
         if h_pred == 1:
             if lang == "Urdu":
                 st.markdown("<div class='precaution-box'>⚠️ <b>دل کی صحت کے لیے:</b> نمک اور چکنائی والی غذاؤں کا استعمال فوری کم کریں۔ بلڈ پریشر مانیٹر کریں اور سگریٹ نوشی یا ذہنی دباؤ سے دور رہیں۔</div>", unsafe_allow_html=True)
             else:
-                st.markdown("<div class='precaution-box'>⚠️ <b>For Heart Condition:</b> Limit sodium (salt) and saturated fats. Maintain routine blood pressure checks, perform light cardio exercises, and manage emotional stress.</div>", unsafe_allow_html=True)
+                st.markdown("<div class='precaution-box'>⚠️ <b>For Heart Condition:</b> Limit sodium (salt) and saturated fats. Maintain routine blood pressure tracking and perform light cardio exercises.</div>", unsafe_allow_html=True)
         else:
             if lang == "Urdu":
                 st.markdown("<div class='precaution-box'>✅ <b>دل کی صحت کے لیے:</b> آپ کے کارڈیک انڈیکیٹرز بہترین ہیں۔ صحت مند دل کے لیے چربی سے پاک غذا کا انتخاب کریں۔</div>", unsafe_allow_html=True)
             else:
-                st.markdown("<div class='precaution-box'>✅ <b>For Heart Condition:</b> Excellent cardiovascular profile. Continue low-sodium dietary habits.</div>", unsafe_allow_html=True)
+                st.markdown("<div class='precaution-box'>✅ <b>For Heart Condition:</b> Excellent cardiovascular indicators. Continue your current low-sodium, healthy lifestyle.</div>", unsafe_allow_html=True)
 
         # 3. Obesity Precautions
         if o_pred >= 2: # Overweight or Obese
             if lang == "Urdu":
                 st.markdown("<div class='precaution-box'>⚠️ <b>وزن کے لیے:</b> کیلوریز کنٹرول کریں۔ جنک فوڈ اور کولڈ ڈرنکس بند کریں۔ پورشن کنٹرول (Portion Control) پر عمل کریں۔</div>", unsafe_allow_html=True)
             else:
-                st.markdown("<div class='precaution-box'>⚠️ <b>For Weight Management:</b> Adopt calorie-deficit meal planning. Avoid processed junk foods and focus on weight training or active physical training.</div>", unsafe_allow_html=True)
+                st.markdown("<div class='precaution-box'>⚠️ <b>For Weight Management:</b> Adopt calorie-deficit meal planning. Avoid processed junk foods and increase regular physical training.</div>", unsafe_allow_html=True)
         else:
             if lang == "Urdu":
-                st.markdown("<div class='precaution-box'>✅ <b>وزن کے لیے:</b> آپ کا باڈی ماس انڈیکس (BMI) محفوظ زون میں ہے۔ مثالی وزن برقرار رکھنے کے لیے متحرک رہیں۔</div>", unsafe_allow_html=True)
+                st.markdown("<div class='precaution-box'>✅ <b>وزن کے لیے:</b> آپ کا باڈی ماس انڈیکس (BMI) بالکل نارمل زون میں ہے۔ اسے برقرار رکھنے کے لیے متحرک رہیں۔</div>", unsafe_allow_html=True)
             else:
-                st.markdown("<div class='precaution-box'>✅ <b>For Weight Management:</b> Your BMI is within the ideal range. Stay physically active to maintain this metric.</div>", unsafe_allow_html=True)
+                st.markdown("<div class='precaution-box'>✅ <b>For Weight Management:</b> Your BMI is within the safe zone. Stay active to maintain this ideal balance.</div>", unsafe_allow_html=True)
 
     except Exception as error:
         st.error(f"Inference error details: {str(error)}")
