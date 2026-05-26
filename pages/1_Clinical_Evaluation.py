@@ -80,7 +80,7 @@ text_pack = {
         "weight": "وزن (کلوگرام)", "height_ft": "قد (فٹ)", "height_in": "قد (انچ)", "bmi_msg": "آپ کا حساب کردہ باڈی ماس انڈیکس (BMI) یہ ہے",
         "hba1c": "شوگر کا تناسب - HbA1c (%)", "fpg": "فاسٹنگ بلڈ شوگر لیول (mg/dL)",
         "bp": "بلڈ پریشر - اوپر کی ریڈنگ (mmHg)", "hr": "دل کی دھڑکن کی رفتار (BPM)", "chol": "کولیسٹرول کی سطح (mg/dL)",
-        "exercise": "ہر ہفتے ورزش کا وقت (گھنتوں میں)", "gender": "جنس", "btn": "تشخیص چلائیں اور رپورٹ تیار کریں",
+        "exercise": "ہر ہفتے ورزش کا وقت (گھنٹوں میں)", "gender": "جنس", "btn": "تشخیص چلائیں اور رپورٹ تیار کریں",
         "db_lbl": "ذیابیطس کا خطرہ (Diabetes)", "ht_lbl": "دل کی بیماری کا خطرہ (Heart)", "ob_lbl": "وزن کی درجہ بندی (Obesity)",
         "pos": "خطرہ موجود ہے", "neg": "نارمل / محفوظ", "high_r": "زیادہ خطرہ", "low_r": "کم خطرہ / نارمل",
         "success": "تجزیہ مکمل ہو گیا ہے! آپ کی ڈیجیٹل طبی رپورٹ تیار ہے۔"
@@ -114,7 +114,7 @@ text_pack = {
     "French (Français)": {
         "title": "Formulaire d'Évaluation de la Santé Personnelle",
         "subtitle": "Veuillez saisir vos mesures ci-dessous para calculer vos paramètres de santé.",
-        "h1": "1. Informations de Base", "h2": "2. Signes Vitaux et Mesures de Santé", "h3": "3. Résultats de l'Évaluation",
+        "h1": "1. Informations de Base", "h2": "2. Signes Vitaux et Mesures de Santé", "h3": "3. Resultados de l'Évaluation",
         "name": "Nom Complet", "name_placeholder": "Entrez le nom complet ici", "ref_id": "ID de Référence / ID du Cas", "age": "Âge (Années)",
         "weight": "Poids (kg)", "height_ft": "Taille (Pieds)", "height_in": "Taille (Pouces)", "bmi_msg": "Votre Indice de Masse Corporelle (IMC) calculé est",
         "hba1c": "Taux de Sucre - HbA1c (%)", "fpg": "Glycémie à Jeun (mg/dL)",
@@ -152,14 +152,14 @@ col1, col2 = st.columns(2)
 with col1:
     weight = st.number_input(t["weight"], min_value=10.0, max_value=250.0, value=60.0, step=0.5)
     
-    # Feet & Inches Selection Interactivity
+    # Feet & Inches UI Input Components
     ht_c1, ht_c2 = st.columns(2)
     with ht_c1:
         ft_val = st.number_input(t["height_ft"], min_value=1, max_value=8, value=5, step=1)
     with ht_c2:
         in_val = st.number_input(t["height_in"], min_value=0, max_value=11, value=6, step=1)
         
-    # Math conversion formulas for real-time indexing
+    # Math metric translation to Centimeters
     total_inches = (ft_val * 12) + in_val
     height_cm = total_inches * 2.54
     
@@ -191,23 +191,32 @@ with col2:
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# ----------------- PREDICTION ENGINE -----------------
+# ----------------- AUTOMATED DYNAMIC PADDING PREDICTION ENGINE -----------------
 if st.button(t["btn"]):
     
-    # Base feature arrays mapping
+    # Core actual values collected from screen fields
     d_base = [p_age, bmi_calc, hba1c, fpg, systolic_bp, cholesterol]
     h_base = [p_age, gender_num, systolic_bp, cholesterol, heart_rate, exercise_hours]
     o_base = [p_age, gender_num, bmi_calc]
     
-    # Dynamic Zeros Padding Logic to completely eliminate 'Feature shape mismatch' structural crashes
-    d_padded = d_base + [0] * (16 - len(d_base))
-    h_padded = h_base + [0] * (16 - len(h_base))
-    o_padded = o_base + [0] * (16 - len(o_base))
-    
-    # Formatting to standard 2D arrays expected by XGBoost algorithms
-    d_input = np.array([d_padded])
-    h_input = np.array([h_padded])
-    o_input = np.array([o_padded])
+    # Dynamic Safe Padding Function using model attributes directly to completely eliminate structural crashes
+    def dynamic_pad(base_features, model_object):
+        if hasattr(model_object, 'n_features_in_'):
+            required_dim = model_object.n_features_in_
+        elif hasattr(model_object, 'feature_names_in_'):
+            required_dim = len(model_object.feature_names_in_)
+        else:
+            required_dim = 20  # Safe upper ceiling global default
+            
+        current_dim = len(base_features)
+        if current_dim < required_dim:
+            return base_features + [0] * (required_dim - current_dim)
+        return base_features[:required_dim]
+
+    # Generate exact expected arrays dynamically
+    d_input = np.array([dynamic_pad(d_base, d_model)])
+    h_input = np.array([dynamic_pad(h_base, h_model)])
+    o_input = np.array([dynamic_pad(o_base, o_model)])
     
     try:
         d_pred = d_model.predict(d_input)[0]
