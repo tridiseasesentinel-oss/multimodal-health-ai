@@ -79,8 +79,8 @@ text_pack = {
         "name": "پورا نام", "name_placeholder": "یہاں مریض کا نام درج کریں", "ref_id": "کیس آئی ڈی / حوالہ نمبر", "age": "عمر (سال)",
         "weight": "وزن (کلوگرام)", "height_ft": "قد (فٹ)", "height_in": "قد (انچ)", "bmi_msg": "آپ کا حساب کردہ باڈی ماس انڈیکس (BMI) یہ ہے",
         "hba1c": "شوگر کا تناسب - HbA1c (%)", "fpg": "فاسٹنگ بلڈ شوگر لیول (mg/dL)",
-        "bp": "بلڈ پریشر - اوپر کی ریڈنگ (mmHg)", "hr": "دل کی دھړکن کی رفتار (BPM)", "chol": "کولیسٹرول کی سطح (mg/dL)",
-        "exercise": "ہر ہفتے ورزش کا وقت (گھنٹے)", "gender": "جنس", "btn": "تشخیص چلائیں اور رپورٹ تیار کریں",
+        "bp": "بلڈ پریشر - اوپر کی ریڈنگ (mmHg)", "hr": "دل کی دھڑکن کی رفتار (BPM)", "chol": "کولیسٹرول کی سطح (mg/dL)",
+        "exercise": "ہر ہفتے ورزش کا وقت (گھنتوں میں)", "gender": "جنس", "btn": "تشخیص چلائیں اور رپورٹ تیار کریں",
         "db_lbl": "ذیابیطس کا خطرہ (Diabetes)", "ht_lbl": "دل کی بیماری کا خطرہ (Heart)", "ob_lbl": "وزن کی درجہ بندی (Obesity)",
         "pos": "خطرہ موجود ہے", "neg": "نارمل / محفوظ", "high_r": "زیادہ خطرہ", "low_r": "کم خطرہ / نارمل",
         "success": "تجزیہ مکمل ہو گیا ہے! آپ کی ڈیجیٹل طبی رپورٹ تیار ہے۔"
@@ -92,7 +92,7 @@ text_pack = {
         "name": "Nombre Completo", "name_placeholder": "Ingrese el nombre completo aquí", "ref_id": "ID de Referencia / ID del Caso", "age": "Edad (Años)",
         "weight": "Peso (kg)", "height_ft": "Altura (Pies)", "height_in": "Altura (Pulgadas)", "bmi_msg": "Su Índice de Masa Corporal (IMC) calculado es",
         "hba1c": "Porcentaje de Azúcar - HbA1c (%)", "fpg": "Nivel de Azúcar en Sangre en Ayunas (mg/dL)",
-        "bp": "Presión Arterial - Lectura Superior (mmHg)", "hr": "Frecuencia Cardíaca / Pulso (BPM)", "chol": "Nivel de Cholesterol (mg/dL)",
+        "bp": "Presión Arterial - Lectura Superior (mmHg)", "hr": "Frecuencia Cardíaca / Pulso (BPM)", "chol": "Nivel de Colesterol (mg/dL)",
         "exercise": "Tiempo de Ejercicio por Semana (Horas)", "gender": "Género", "btn": "Ejecutar Evaluación y Generar Informe",
         "db_lbl": "Riesgo de Diabetes", "ht_lbl": "Riesgo de Condición Cardíaca", "ob_lbl": "Clasificación de Peso",
         "pos": "Riesgo Detectado", "neg": "Normal / Limpio", "high_r": "Alto Riesgo", "low_r": "Riesgo Normal / Bajo",
@@ -116,7 +116,7 @@ text_pack = {
         "subtitle": "Veuillez saisir vos mesures ci-dessous para calculer vos paramètres de santé.",
         "h1": "1. Informations de Base", "h2": "2. Signes Vitaux et Mesures de Santé", "h3": "3. Résultats de l'Évaluation",
         "name": "Nom Complet", "name_placeholder": "Entrez le nom complet ici", "ref_id": "ID de Référence / ID du Cas", "age": "Âge (Années)",
-        "weight": "Poids (kg)", "height_ft": "Taille (Pieds)", "height_in": "Taille (Pouces)", "bmi_msg": "Votre Indice de Masse Corporelle (IMC) calculé es",
+        "weight": "Poids (kg)", "height_ft": "Taille (Pieds)", "height_in": "Taille (Pouces)", "bmi_msg": "Votre Indice de Masse Corporelle (IMC) calculé est",
         "hba1c": "Taux de Sucre - HbA1c (%)", "fpg": "Glycémie à Jeun (mg/dL)",
         "bp": "Pression Artérielle - Lecture Supérieure (mmHg)", "hr": "Fréquence Cardiaque / Pouls (BPM)", "chol": "Taux de Cholestérol (mg/dL)",
         "exercise": "Temps d'Exercice par Semaine (Heures)", "gender": "Genre", "btn": "Exécuter l'Évaluation et Générer le Rapport",
@@ -152,18 +152,17 @@ col1, col2 = st.columns(2)
 with col1:
     weight = st.number_input(t["weight"], min_value=10.0, max_value=250.0, value=60.0, step=0.5)
     
-    # Dual Dropdowns/Sliders for Height in Feet & Inches
+    # Feet & Inches Selection Interactivity
     ht_c1, ht_c2 = st.columns(2)
     with ht_c1:
         ft_val = st.number_input(t["height_ft"], min_value=1, max_value=8, value=5, step=1)
     with ht_c2:
         in_val = st.number_input(t["height_in"], min_value=0, max_value=11, value=6, step=1)
         
-    # Standard medical conversion computation logic (Feet-Inches to Centimeters)
+    # Math conversion formulas for real-time indexing
     total_inches = (ft_val * 12) + in_val
     height_cm = total_inches * 2.54
     
-    # Calculate BMI instantly using converted metrics
     height_m = height_cm / 100.0
     bmi_calc = round(weight / (height_m ** 2), 2)
     st.info(f"{t['bmi_msg']}: **{bmi_calc}**")
@@ -195,17 +194,20 @@ st.markdown("<br>", unsafe_allow_html=True)
 # ----------------- PREDICTION ENGINE -----------------
 if st.button(t["btn"]):
     
-    # 1. Diabetes model format
-    d_input = np.array([[p_age, bmi_calc, hba1c, fpg, systolic_bp, cholesterol]])
-    
-    # 2. Heart Model expects exact 16 inputs to map categorical features safely
-    # Pad structural template array with zeros to resolve 'Feature shape mismatch'
+    # Base feature arrays mapping
+    d_base = [p_age, bmi_calc, hba1c, fpg, systolic_bp, cholesterol]
     h_base = [p_age, gender_num, systolic_bp, cholesterol, heart_rate, exercise_hours]
-    h_padded = h_base + [0] * (16 - len(h_base))
-    h_input = np.array([h_padded])
+    o_base = [p_age, gender_num, bmi_calc]
     
-    # 3. Obesity model format
-    o_input = np.array([[p_age, gender_num, bmi_calc]])
+    # Dynamic Zeros Padding Logic to completely eliminate 'Feature shape mismatch' structural crashes
+    d_padded = d_base + [0] * (16 - len(d_base))
+    h_padded = h_base + [0] * (16 - len(h_base))
+    o_padded = o_base + [0] * (16 - len(o_base))
+    
+    # Formatting to standard 2D arrays expected by XGBoost algorithms
+    d_input = np.array([d_padded])
+    h_input = np.array([h_padded])
+    o_input = np.array([o_padded])
     
     try:
         d_pred = d_model.predict(d_input)[0]
