@@ -6,7 +6,7 @@ import time
 
 st.set_page_config(page_title="Global Health Evaluation", layout="wide")
 
-# UI Aesthetic Theming
+# Theme styling
 st.markdown("""
     <style>
     .block-heading {
@@ -49,62 +49,44 @@ def load_diagnostic_models():
 try:
     d_model, h_model, o_model = load_diagnostic_models()
 except Exception as e:
-    st.error("System configuration loading...")
+    st.error("System configuration files loading...")
 
-# ----------------- 3-LANGUAGE CONFIGURATION DICTIONARY -----------------
+# ----------------- 20 LANGUAGES DICTIONARY -----------------
 with st.sidebar:
-    st.markdown("### 🌐 System Settings")
-    lang = st.selectbox("Select Language / زبان منتخب کریں / اختر اللغة", ["English", "Urdu", "Arabic"])
+    st.markdown("### 🌐 Language Settings")
+    lang = st.selectbox("Select Language", [
+        "English", "Urdu", "Arabic", "Hindi", "Punjabi", "Pashto", "Sindhi", 
+        "Spanish", "French", "German", "Chinese", "Russian", "Bengali", 
+        "Portuguese", "Japanese", "Turkish", "Italian", "Persian", "Korean", "Indonesian"
+    ])
 
 text_pack = {
-    "English": {
-        "title": "Personal Health Evaluation Form",
-        "subtitle": "Please enter your measurements below to calculate health metrics.",
-        "h1": "1. Basic Information", "h2": "2. Health Vitals & Measurements", "h3": "3. Evaluation Results",
-        "h4": "📋 Recommended Precautionary Measures",
-        "name": "Full Name", "name_placeholder": "Enter full name here", "ref_id": "Reference ID / Case ID", "age": "Age (Years)",
-        "weight": "Weight (kg)", "height_ft": "Height (Feet)", "height_in": "Height (Inches)", "bmi_msg": "Your calculated BMI is",
-        "hba1c": "Sugar Percentage - HbA1c (%)", "fpg": "Fasting Blood Sugar Level (mg/dL)",
-        "bp": "Blood Pressure - Upper Reading (mmHg)", "hr": "Heart Rate / Pulse (BPM)", "chol": "Cholesterol Level (mg/dL)",
-        "exercise": "Exercise Time per Week (Hours)", "gender": "Gender", "btn": "Run Evaluation & Generate Report",
-        "db_lbl": "Diabetes Risk", "ht_lbl": "Heart Condition Risk", "ob_lbl": "Obesity Category",
-        "pos": "Risk Detected (Positive)", "neg": "Normal / Clear", "high_r": "High Risk Detected", "low_r": "Normal / Low Risk",
-        "success": "Analysis complete! Your digital clinical report is ready."
-    },
-    "Urdu": {
-        "title": "شخصی صحت کی جانچ کا فارم",
-        "subtitle": "صحت کے پیرامیٹرز کا حساب لگانے کے لیے نیچے اپنی پیمائش درج کریں۔",
-        "h1": "1. بنیادی معلومات", "h2": "2. صحت کے اہم وائٹلز اور پیمائش", "h3": "3. تشخیص کے نتائج",
-        "h4": "📋 تجویز کردہ احتیاطی تدابیر",
-        "name": "پورا نام", "name_placeholder": "یہاں مریض کا نام درج کریں", "ref_id": "کیس آئی ڈی / حوالہ نمبر", "age": "عمر (سال)",
-        "weight": "وزن (کلوگرام)", "height_ft": "قد (فٹ)", "height_in": "قد (انچ)", "bmi_msg": "آپ کا حساب کردہ باڈی ماس انڈیکس (BMI) یہ ہے",
-        "hba1c": "شوگر کا تناسب - HbA1c (%)", "fpg": "فاسٹنگ بلڈ شوگر لیول (mg/dL)",
-        "bp": "بلڈ پریشر - اوپر کی ریڈنگ (mmHg)", "hr": "دل کی دھڑکن کی رفتار (BPM)", "chol": "کولیسٹرول کی سطح (mg/dL)",
-        "exercise": "ہر ہفتے ورزش کا وقت (گھنٹوں میں)", "gender": "جنس", "btn": "تشخیص چلائیں اور رپورٹ تیار کریں",
-        "db_lbl": "ذیابیطس کا خطرہ (Diabetes)", "ht_lbl": "دل کی بیماری کا خطرہ (Heart)", "ob_lbl": "وزن کی درجہ بندی (Obesity)",
-        "pos": "خطرہ موجود ہے (Positive)", "neg": "نارمل / محفوظ", "high_r": "زیادہ خطرہ موجود ہے", "low_r": "کم خطرہ / نارمل",
-        "success": "تجزیہ مکمل ہو گیا ہے! آپ کی ڈیجیٹل طبی رپورٹ تیار ہے۔"
-    },
-    "Arabic": {
-        "title": "نموذج تقييم الصحة الشخصية",
-        "subtitle": "يرجى إدخال قياساتك أدناه لحساب المؤشرات الصحية.",
-        "h1": "1. المعلومات الأساسية", "h2": "2. المؤشرات الحيوية والقياسات", "h3": "3. نتائج التقييم",
-        "h4": "📋 التدابير الوقائية الموصى بها",
-        "name": "الاسم الكامل", "name_placeholder": "أدخل الاسم الكامل هنا", "ref_id": "رقم الحالة الرقمي", "age": "العمر (بالسنوات)",
-        "weight": "الوزن (كيلو جرام)", "height_ft": "الطول (قدم)", "height_in": "الطول (بوصة)", "bmi_msg": "مؤشر كتلة الجسم المحسوب هو",
-        "hba1c": "نسبة السكر تراكمي - HbA1c (%)", "fpg": "مستوى سكر الدم الصائم (mg/dL)",
-        "bp": "ضغط الدم - القراءة العليا (mmHg)", "hr": "معدل ضربات القلب (BPM)", "chol": "مستوى الكوليسترول (mg/dL)",
-        "exercise": "وقت التمرين في الأسبوع (ساعات)", "gender": "الجنس", "btn": "تشغيل التقييم وإصدار التقرير",
-        "db_lbl": "خطر الإصابة بالسكري", "ht_lbl": "خطر الإصابة بأمراض القلب", "ob_lbl": "تصنيف الوزن والبدانة",
-        "pos": "تم رصد خطر (إيجابي)", "neg": "طبيعي / آمن", "high_r": "خطر مرتفع جداً", "low_r": "خطر منخفض / طبيعي",
-        "success": "اكتمل التحليل! تقريرك الطبي الرقمي جاهز الآن."
-    }
+    "English": {"title": "Personal Health Evaluation Form", "subtitle": "Enter metrics below.", "h1": "1. Basic Information", "h2": "2. Vitals", "h3": "Results", "h4": "📋 Precautions", "name": "Full Name", "ref_id": "Case ID", "age": "Age", "weight": "Weight (kg)", "height_ft": "Height (Ft)", "height_in": "Inches", "bmi_msg": "Calculated BMI", "btn": "Run Evaluation", "db_lbl": "Diabetes Risk", "ht_lbl": "Heart Risk", "ob_lbl": "Obesity", "pos": "Positive", "neg": "Normal"},
+    "Urdu": {"title": "شخصی صحت کی جانچ کا فارم", "subtitle": "نیچے معلومات درج کریں۔", "h1": "1. بنیادی معلومات", "h2": "2. صحت کے وائٹلز", "h3": "نتائج", "h4": "📋 احتیاطی تدابیر", "name": "پورا نام", "ref_id": "کیس آئی ڈی", "age": "عمر", "weight": "وزن (کلوگرام)", "height_ft": "قد (فٹ)", "height_in": "انچ", "bmi_msg": "حساب کردہ BMI", "btn": "تشخیص چلائیں", "db_lbl": "ذیابیطس", "ht_lbl": "دل کا خطرہ", "ob_lbl": "موٹاپا", "pos": "موجود ہے", "neg": "نارمل"},
+    "Arabic": {"title": "نموذج تقييم الصحة", "subtitle": "أدخل البيانات أدناه.", "h1": "1. معلومات أساسية", "h2": "2. العلامات الحيوية", "h3": "النتائج", "h4": "📋 تدابير وقائية", "name": "الاسم الكامل", "ref_id": "رقم الحالة", "age": "العمر", "weight": "الوزن (كجم)", "height_ft": "الطول (قدم)", "height_in": "بوصة", "bmi_msg": "مؤشر كتلة الجسم", "btn": "تشغيل التقييم", "db_lbl": "السكري", "ht_lbl": "أمراض القلب", "ob_lbl": "السمنة", "pos": "إيجابي", "neg": "طبيعي"},
+    "Hindi": {"title": "व्यक्तिगत स्वास्थ्य मूल्यांकन", "subtitle": "नीचे विवरण दर्ज करें।", "h1": "1. बुनियादी जानकारी", "h2": "2. स्वास्थ्य महत्वपूर्ण", "h3": "परिणाम", "h4": "📋 एहतियाती उपाय", "name": "पूरा नाम", "ref_id": "केस आईडी", "age": "आयु", "weight": "वजन (किग्रा)", "height_ft": "ऊंचाई (फिट)", "height_in": "इंच", "bmi_msg": "गणना की गई बीएमआई", "btn": "मूल्यांकन करें", "db_lbl": "मधुमेह जोखिम", "ht_lbl": "हृदय जोखिम", "ob_lbl": "मोटापा", "pos": "जोखिम", "neg": "सामान्य"},
+    "Punjabi": {"title": "ਨਿੱਜੀ ਸਿਹਤ ਮੁਲਾਂਕਣ ਫਾਰਮ", "subtitle": "ਹੇਠਾਂ ਮੈਟ੍ਰਿਕਸ ਦਰਜ ਕਰੋ।", "h1": "1. ਬੁਨਿਆਦੀ ਜਾਣਕਾਰੀ", "h2": "2. ਸਿਹਤ ਵਾਈਟਲਸ", "h3": "ਨਤੀਜੇ", "h4": "📋 ਸਾਵਧਾਨੀਆਂ", "name": "ਪੂਰਾ ਨਾਮ", "ref_id": "ਕੇਸ ਆਈਡੀ", "age": "ਉਮਰ", "weight": "ਭਾਰ (ਕਿਲੋ)", "height_ft": "ਕੱਦ (ਫੁੱਟ)", "height_in": "ਇੰਚ", "bmi_msg": "BMI ਨਤੀਜਾ", "btn": "ਜਾਂਚ ਸ਼ੁਰੂ ਕਰੋ", "db_lbl": "ਸ਼ੂਗਰ ਦਾ ਖਤਰਾ", "ht_lbl": "ਦਿਲ ਦਾ ਖਤਰਾ", "ob_lbl": "ਮੋਟਾਪਾ", "pos": "ਖਤਰਾ ਹੈ", "neg": "ਨਾਰਮਲ"},
+    "Pashto": {"title": "د شخصي روغتیا ارزونې فورمه", "subtitle": "روغتیایی معلومات دننه کړئ.", "h1": "۱. اساسي معلومات", "h2": "۲. روغتیايي نښې", "h3": "پایلې", "h4": "📋 احتیاطي تدابیر", "name": "بشپړ نوم", "ref_id": "کیس ای ډੀ", "age": "عمر", "weight": "وزن (کلو)", "height_ft": "قامت (فټ)", "height_in": "انچ", "bmi_msg": "حساب شوی BMI", "btn": "ارزونه پیਲ کړئ", "db_lbl": "د شکرې خطر", "ht_lbl": "د زړه خطر", "ob_lbl": "چاغښت", "pos": "خطر شته", "neg": "نارمل"},
+    "Sindhi": {"title": "شخصي صحت جي جانچ جو فارم", "subtitle": "هيٺ معلومات داخل ڪريو.", "h1": "1. ਬੁਨਿਆਦੀ ਜਾਣਕਾਰੀ", "h2": "2. صحت جا وائٽلز", "h3": "نتيحا", "h4": "📋 احتياطي تدابير", "name": "ਪੂਰਾ ਨਾਮ", "ref_id": "ڪيس آئي ڊي", "age": "عمر", "weight": "وزن (کلو)", "height_ft": "قد (فٽ)", "height_in": "انچ", "bmi_msg": "حساب ٿيل BMI", "btn": "تشخيص هلايو", "db_lbl": "ڏيابيٽس جو خطرو", "ht_lbl": "دل جو خطرو", "ob_lbl": "موتيو", "pos": "مثبت", "neg": "نارمل"},
+    "Spanish": {"title": "Formulario de Evaluación de Salud", "subtitle": "Ingrese las métricas.", "h1": "1. Info Básica", "h2": "2. Vítales", "h3": "Resultados", "h4": "📋 Medidas Preventivas", "name": "Nombre", "ref_id": "ID Caso", "age": "Edad", "weight": "Peso (kg)", "height_ft": "Altura (Pies)", "height_in": "Pulgadas", "bmi_msg": "IMC Calculado", "btn": "Ejecutar Evaluación", "db_lbl": "Diabetes", "ht_lbl": "Riesgo Cardíaco", "ob_lbl": "Obesidad", "pos": "Positivo", "neg": "Normal"},
+    "French": {"title": "Formulaire d'Évaluation de Santé", "subtitle": "Entrez les données.", "h1": "1. Info de Base", "h2": "2. Signes Vitaux", "h3": "Résultats", "h4": "📋 Précautions", "name": "Nom", "ref_id": "ID Cas", "age": "Âge", "weight": "Poids (kg)", "height_ft": "Taille (Pieds)", "height_in": "Pouces", "bmi_msg": "IMC Calculé", "btn": "Évaluer", "db_lbl": "Diabète", "ht_lbl": "Risque Cardiaque", "ob_lbl": "Obésité", "pos": "Positif", "neg": "Normal"},
+    "German": {"title": "Gesundheitsbewertungsformular", "subtitle": "Werte eingeben.", "h1": "1. Basisinfo", "h2": "2. Vitalwerte", "h3": "Ergebnisse", "h4": "📋 Maßnahmen", "name": "Name", "ref_id": "Fall-ID", "age": "Alter", "weight": "Gewicht (kg)", "height_ft": "Größe (Fuß)", "height_in": "Zoll", "bmi_msg": "Berechneter BMI", "btn": "Auswerten", "db_lbl": "Diabetes", "ht_lbl": "Herzrisiko", "ob_lbl": "Adipositas", "pos": "Positiv", "neg": "Normal"},
+    "Chinese": {"title": "个人健康 Assessment 表格", "subtitle": "输入健康数据。", "h1": "1. 基本信息", "h2": "2. 生命体征", "h3": "评估结果", "h4": "📋 预防措施", "name": "姓名", "ref_id": "案例 ID", "age": "年龄", "weight": "体重 (kg)", "height_ft": "身高 (英尺)", "height_in": "英寸", "bmi_msg": "计算出的 BMI", "btn": "运行评估", "db_lbl": "糖尿病风险", "ht_lbl": "心脏病风险", "ob_lbl": "肥胖程度", "pos": "阳性/有风险", "neg": "正常"},
+    "Russian": {"title": "Форма оценки здоровья", "subtitle": "Введите данные.", "h1": "1. Инфо", "h2": "2. Жизненные показатели", "h3": "Результаты", "h4": "📋 Меры предосторожности", "name": "Имя", "ref_id": "ID", "age": "Возраст", "weight": "Вес (кг)", "height_ft": "Рост (Футы)", "height_in": "Дюймы", "bmi_msg": "Индекс массы тела", "btn": "Оценить", "db_lbl": "Диабет", "ht_lbl": "Риск Сердца", "ob_lbl": "Ожирение", "pos": "Положительный", "neg": "Норма"},
+    "Bengali": {"title": "ব্যক্তিগত স্বাস্থ্য মূল্যায়ন ফর্ম", "subtitle": "মেট্রিক্স লিখুন।", "h1": "১. সাধারণ তথ্য", "h2": "২. ভাইটালস", "h3": "ফলাফল", "h4": "📋 সতর্কতামূলক ব্যবস্থা", "name": "নাম", "ref_id": "আইডি", "age": "বয়স", "weight": "ওজন (কেজি)", "height_ft": "উচ্চতা (ফুট)", "height_in": "ইঞ্চি", "bmi_msg": "বিএমআই", "btn": "মূল্যায়ন শুরু করুন", "db_lbl": "ডায়াবেটিস ঝুঁকি", "ht_lbl": "হৃদরোগের ঝুঁকি", "ob_lbl": "স্থূলতা", "pos": "ঝুঁকি আছে", "neg": "স্বাভাবিক"},
+    "Portuguese": {"title": "Formulário de Avaliação de Saúde", "subtitle": "Insira os dados.", "h1": "1. Info Básica", "h2": "2. Sinais Vitais", "h3": "Resultados", "h4": "📋 Precauções", "name": "Nome", "ref_id": "ID Caso", "age": "Idade", "weight": "Peso (kg)", "height_ft": "Altura (Pés)", "height_in": "Polegadas", "bmi_msg": "IMC Calculado", "btn": "Avaliar", "db_lbl": "Diabetes", "ht_lbl": "Risco Cardíaco", "ob_lbl": "Obesidade", "pos": "Positivo", "neg": "Normal"},
+    "Japanese": {"title": "健康評価フォーム", "subtitle": "数値を入力してください。", "h1": "1. 基本情報", "h2": "2. バイタル", "h3": "結果", "h4": "📋 予防措置", "name": "氏名", "ref_id": "ケースID", "age": "年齢", "weight": "体重 (kg)", "height_ft": "身長 (feet)", "height_in": "inch", "bmi_msg": "BMI値", "btn": "評価を実行", "db_lbl": "糖尿病リスク", "ht_lbl": "心臓リスク", "ob_lbl": "肥胖度", "pos": "リスクあり", "neg": "正常"},
+    "Turkish": {"title": "Kişisel Sağlık Değerlendirme Formu", "subtitle": "Metrikleri girin.", "h1": "1. Temel Bilgiler", "h2": "2. Vitaller", "h3": "Sonuçlar", "h4": "📋 Önlemler", "name": "Ad Soyad", "ref_id": "Vaka ID", "age": "Yaş", "weight": "Kilo (kg)", "height_ft": "Boy (Feet)", "height_in": "Inç", "bmi_msg": "Hesaplanan BMI", "btn": "Değerlendir", "db_lbl": "Diyabet Riski", "ht_lbl": "Kalp Riski", "ob_lbl": "Obezite", "pos": "Riskli", "neg": "Normal"},
+    "Italian": {"title": "Modulo Valutazione Salute", "subtitle": "Inserisci i dati.", "h1": "1. Info Base", "h2": "2. Parametri", "h3": "Risultati", "h4": "📋 Precauzioni", "name": "Nome", "ref_id": "ID Caso", "age": "Età", "weight": "Peso (kg)", "height_ft": "Altezza (Piedi)", "height_in": "Pollici", "bmi_msg": "IMC Calcolato", "btn": "Valuta", "db_lbl": "Diabete", "ht_lbl": "Rischio Cardiaco", "ob_lbl": "Obesità", "pos": "Positivo", "neg": "Normale"},
+    "Persian": {"title": "فرم ارزیابی سلامت فردی", "subtitle": "شاخص‌ها را وارد کنید.", "h1": "۱. اطلاعات پایه", "h2": "۲. علائم حیاتی", "h3": "نتایج", "h4": "📋 اقدامات پیشگیرانه", "name": "نام کامل", "ref_id": "شناسه پرونده", "age": "سن", "weight": "وزن (کیلو)", "height_ft": "قد (فوت)", "height_in": "اینچ", "bmi_msg": "شاخص BMI", "btn": "شروع ارزیابی", "db_lbl": "خطر دیابت", "ht_lbl": "خطر قلبی", "ob_lbl": "چاقی", "pos": "مثبت", "neg": "نرمال"},
+    "Korean": {"title": "개인 건강 평가 양식", "subtitle": "수치를 입력하세요.", "h1": "1. 기본 정보", "h2": "2. 바이タル", "h3": "결과", "h4": "📋 권장 예방조치", "name": "성명", "ref_id": "케이스 ID", "age": "연령", "weight": "체중 (kg)", "height_ft": "신장 (Feet)", "height_in": "Inches", "bmi_msg": "계산된 BMI", "btn": "평가 실행", "db_lbl": "당뇨 위험", "ht_lbl": "심장 질환 위험", "ob_lbl": "비만도", "pos": "양성", "neg": "정상"},
+    "Indonesian": {"title": "Formulir Evaluasi Kesehatan", "subtitle": "Masukkan data.", "h1": "1. Info Dasar", "h2": "2. Tanda Vital", "h3": "Hasil", "h4": "📋 Langkah Pencegahan", "name": "Nama Lengkap", "ref_id": "ID Kasus", "age": "Usia", "weight": "Berat (kg)", "height_ft": "Tinggi (Kaki)", "height_in": "Inci", "bmi_msg": "Hasil BMI", "btn": "Mulai Evaluasi", "db_lbl": "Risiko Diabetes", "ht_lbl": "Risiko Jantung", "ob_lbl": "Obesitas", "pos": "Positif", "neg": "Normal"}
 }
 
 t = text_pack[lang]
 
-# Right-to-Left alignment adjustment for Urdu/Arabic interfaces
-if lang in ["Urdu", "Arabic"]:
+# Dynamic Alignment Setup
+if lang in ["Urdu", "Arabic", "Pashto", "Persian", "Sindhi"]:
     st.markdown("<style>body {text-align: right !important; direction: rtl !important;}</style>", unsafe_allow_html=True)
 
 st.title(t["title"])
@@ -116,7 +98,7 @@ if 'auto_case_id' not in st.session_state:
 
 c1, c2, c3 = st.columns(3)
 with c1:
-    p_name = st.text_input(t["name"], value="", placeholder=t["name_placeholder"])
+    p_name = st.text_input(t["name"], value="")
 with c2:
     p_id = st.text_input(t["ref_id"], value=st.session_state.auto_case_id, disabled=True)
 with c3:
@@ -126,7 +108,7 @@ st.markdown(f"<br><div class='block-heading'>{t['h2']}</div>", unsafe_allow_html
 col1, col2 = st.columns(2)
 
 with col1:
-    weight = st.number_input(t["weight"], min_value=10.0, max_value=250.0, value=60.0, step=0.5)
+    weight = st.number_input(t["weight"], min_value=10.0, max_value=250.0, value=60.0)
     ht_c1, ht_c2 = st.columns(2)
     with ht_c1:
         ft_val = st.selectbox(t["height_ft"], list(range(1, 9)), index=4)
@@ -134,54 +116,53 @@ with col1:
         in_val = st.selectbox(t["height_in"], list(range(12)), index=6)
         
     total_inches = (ft_val * 12) + in_val
-    height_cm = total_inches * 2.54
-    height_m = height_cm / 100.0
+    height_m = (total_inches * 2.54) / 100.0
     bmi_calc = round(weight / (height_m ** 2), 2)
     st.info(f"{t['bmi_msg']}: **{bmi_calc}**")
     
-    hba1c = st.number_input(t["hba1c"], min_value=3.0, max_value=15.0, value=5.4, step=0.1)
-    fpg = st.number_input(t["fpg"], min_value=50, max_value=500, value=98, step=1)
+    hba1c = st.number_input("HbA1c (%)", min_value=3.0, max_value=15.0, value=5.4)
+    fpg = st.number_input("Fasting Blood Sugar (mg/dL)", min_value=50, max_value=500, value=98)
 
 with col2:
-    systolic_bp = st.number_input(t["bp"], min_value=70, max_value=220, value=120, step=1)
-    heart_rate = st.number_input(t["hr"], min_value=40, max_value=180, value=72, step=1)
-    cholesterol = st.number_input(t["chol"], min_value=100, max_value=450, value=195, step=1)
-    exercise_hours = st.number_input(t["exercise"], min_value=0, max_value=40, value=3, step=1)
+    systolic_bp = st.number_input("Systolic BP (mmHg)", min_value=70, max_value=220, value=120)
+    heart_rate = st.number_input("Heart Rate (BPM)", min_value=40, max_value=180, value=72)
+    cholesterol = st.number_input("Cholesterol (mg/dL)", min_value=100, max_value=450, value=195)
+    exercise_hours = st.number_input("Exercise Hours/Week", min_value=0, max_value=40, value=3)
     
-    if lang == "Urdu":
-        gender_options = ["مرد (Male)", "عورت (Female)"]
-    elif lang == "Arabic":
-        gender_options = ["ذكر (Male)", "أنثى (Female)"]
-    else:
-        gender_options = ["Male", "Female"]
-        
-    gender_selection = st.selectbox(t["gender"], gender_options)
-    gender_num = 1 if gender_selection in ["Male", "مرد (Male)", "ذكر (Male)"] else 0
+    gender_selection = st.selectbox("Gender", ["Male", "Female"])
+    gender_num = 1 if gender_selection == "Male" else 0
 
 st.markdown("<br>", unsafe_allow_html=True)
 
 if st.button(t["btn"]):
-    # Create raw dataframe vectors with native internal names to fully secure compliance
-    d_input = pd.DataFrame([[p_age, bmi_calc, hba1c, fpg, systolic_bp, cholesterol]])
-    h_input = pd.DataFrame([[p_age, gender_num, systolic_bp, cholesterol, heart_rate, exercise_hours]])
-    o_input = pd.DataFrame([[p_age, gender_num, bmi_calc]])
-    
     try:
-        # Force flush out schema properties directly
-        if hasattr(d_model, 'get_booster'):
-            d_model.get_booster().feature_names = None
-        if hasattr(h_model, 'get_booster'):
-            h_model.get_booster().feature_names = None
-        if hasattr(o_model, 'get_booster'):
-            o_model.get_booster().feature_names = None
-
-        d_pred = d_model.predict(d_input.values)
-        h_pred = h_model.predict(h_input.values)
-        o_pred = o_model.predict(o_input.values)
+        # ABSOLUTE FIX: Generating dataframes matching internal feature specs directly
+        # Diabetes Model Dataframe Structure
+        d_input = pd.DataFrame(
+            [[float(p_age), float(bmi_calc), float(hba1c), float(fpg), float(systolic_bp), float(cholesterol)]],
+            columns=['Age', 'BMI', 'HbA1c', 'FastingBloodSugar', 'SystolicBP', 'Cholesterol']
+        )
         
-        d_res = int(d_pred[0]) if hasattr(d_pred, '__len__') else int(d_pred)
-        h_res = int(h_pred[0]) if hasattr(h_pred, '__len__') else int(h_pred)
-        o_res = int(o_pred[0]) if hasattr(o_pred, '__len__') else int(o_pred)
+        # Heart Model Dataframe Structure
+        h_input = pd.DataFrame(
+            [[float(p_age), float(gender_num), float(systolic_bp), float(cholesterol), float(heart_rate), float(exercise_hours)]],
+            columns=['Age', 'Gender', 'SystolicBP', 'Cholesterol', 'HeartRate', 'ExerciseHours']
+        )
+        
+        # Obesity Model Dataframe Structure
+        o_input = pd.DataFrame(
+            [[float(p_age), float(gender_num), float(bmi_calc)]],
+            columns=['Age', 'Gender', 'BMI']
+        )
+
+        # Predict operations directly
+        d_pred = d_model.predict(d_input)
+        h_pred = h_model.predict(h_input)
+        o_pred = o_model.predict(o_input)
+        
+        d_res = int(d_pred[0])
+        h_res = int(h_pred[0])
+        o_res = int(o_pred[0])
         
         st.markdown(f"<br><div class='block-heading'>{t['h3']}</div>", unsafe_allow_html=True)
         
@@ -189,39 +170,21 @@ if st.button(t["btn"]):
         with res1:
             st.metric(label=t["db_lbl"], value=t["pos"] if d_res == 1 else t["neg"])
         with res2:
-            st.metric(label=t["ht_lbl"], value=t["high_r"] if h_res == 1 else t["low_r"])
+            st.metric(label=t["ht_lbl"], value=t["pos"] if h_res == 1 else t["neg"])
         with res3:
-            if lang == "Urdu":
-                ob_map = {0: "کم وزن", 1: "نارمل وزن", 2: "زیادہ وزن", 3: "موٹاپا"}
-            elif lang == "Arabic":
-                ob_map = {0: "نقص الوزن", 1: "وزن طبيعي", 2: "وزن زائد", 3: "سمنة مفرطة"}
-            else:
-                ob_map = {0: "Underweight", 1: "Normal Weight", 2: "Overweight", 3: "Obese Class"}
-                
+            ob_map = {0: "Underweight", 1: "Normal Weight", 2: "Overweight", 3: "Obese Class"}
             st.metric(label=t["ob_lbl"], value=ob_map.get(o_res, "Normal"))
             
-        st.success(t["success"])
+        st.success("Evaluation complete.")
         
-        # Precautionary Text Engine
+        # Precaution Display Block
         st.markdown(f"<br><div class='block-heading'>{t['h4']}</div>", unsafe_allow_html=True)
-        
         if d_res == 1:
-            if lang == "Urdu": st.markdown("<div class='precaution-box'>⚠️ <b>ذیابیطس:</b> میٹھی اشیاء سے پرہیز کریں اور روزانہ چہل قدمی کریں۔</div>", unsafe_allow_html=True)
-            elif lang == "Arabic": st.markdown("<div class='precaution-box'>⚠️ <b>مرض السكري:</b> يرجى تقليل السكريات والنشويات وممارسة المشي اليومي.</div>", unsafe_allow_html=True)
-            else: st.markdown("<div class='precaution-box'>⚠️ <b>Diabetes Intake:</b> Please limit refined sugar components and maintain walking blocks.</div>", unsafe_allow_html=True)
-        else:
-            if lang == "Urdu": st.markdown("<div class='precaution-box'>✅ <b>ذیابیطس:</b> بلڈ شوگر لیول نارمل ہے۔ متوازن غذا کھائیں۔</div>", unsafe_allow_html=True)
-            elif lang == "Arabic": st.markdown("<div class='precaution-box'>✅ <b>مرض السكري:</b> مستويات السكر تبدو طبيعية تماماً. حافظ على نظامك.</div>", unsafe_allow_html=True)
-            else: st.markdown("<div class='precaution-box'>✅ <b>Diabetes Range:</b> Vitals are well within non-diabetic ranges. Keep up the clean diet.</div>", unsafe_allow_html=True)
-
+            st.markdown("<div class='precaution-box'>⚠️ <b>Diabetes Precaution:</b> Reduce intake of sugar and carbohydrates. Maintain regular 30-minute daily walks.</div>", unsafe_allow_html=True)
         if h_res == 1:
-            if lang == "Urdu": st.markdown("<div class='precaution-box'>⚠️ <b>دل کی صحت:</b> کھانے میں نمک کم کریں اور بلڈ پریشر مانیٹر کریں۔</div>", unsafe_allow_html=True)
-            elif lang == "Arabic": st.markdown("<div class='precaution-box'>⚠️ <b>صحة القلب:</b> تجنب الأملاح والدهون المشبعة وراقب ضغط الدم باستمرار.</div>", unsafe_allow_html=True)
-            else: st.markdown("<div class='precaution-box'>⚠️ <b>Cardiovascular Risk:</b> Avoid excessive salt usage and monitor your blood pressure.</div>", unsafe_allow_html=True)
-        else:
-            if lang == "Urdu": st.markdown("<div class='precaution-box'>✅ <b>دل کی صحت:</b> آپ کے کارڈیک انڈیکیٹرز بالکل محفوظ ہیں۔</div>", unsafe_allow_html=True)
-            elif lang == "Arabic": st.markdown("<div class='precaution-box'>✅ <b>صحة القلب:</b> المؤشرات الحيوية للقلب سليمة ومستقرة.</div>", unsafe_allow_html=True)
-            else: st.markdown("<div class='precaution-box'>✅ <b>Cardiovascular Range:</b> Heart functions and diagnostic pulses indicate excellent health.</div>", unsafe_allow_html=True)
-
+            st.markdown("<div class='precaution-box'>⚠️ <b>Heart Precaution:</b> Restrict salty items and deeply fried meals. Keep monitoring blood pressure tracking charts.</div>", unsafe_allow_html=True)
+        if o_res >= 2:
+            st.markdown("<div class='precaution-box'>⚠️ <b>Obesity Precaution:</b> Restrict processed fast foods and soft drinks. Practice physical training routines.</div>", unsafe_allow_html=True)
+            
     except Exception as error:
-        st.error(f"Inference Engine Validation Error: {str(error)}")
+        st.error(f"Error Processing Request: {str(error)}")
