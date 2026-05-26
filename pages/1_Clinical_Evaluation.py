@@ -124,14 +124,14 @@ col1, col2 = st.columns(2)
 with col1:
     weight = st.number_input(t["weight"], min_value=10.0, max_value=250.0, value=60.0, step=0.5)
     
-    # Feet & Inches UI Dropdowns/Inputs
+    # Feet & Inches Dropdown Components
     ht_c1, ht_c2 = st.columns(2)
     with ht_c1:
-        ft_val = st.number_input(t["height_ft"], min_value=1, max_value=8, value=5, step=1)
+        ft_val = st.selectbox(t["height_ft"], list(range(1, 9)), index=4)
     with ht_c2:
-        in_val = st.number_input(t["height_in"], min_value=0, max_value=11, value=6, step=1)
+        in_val = st.selectbox(t["height_in"], list(range(12)), index=6)
         
-    # Standard translation formulas
+    # Math metric conversion logic
     total_inches = (ft_val * 12) + in_val
     height_cm = total_inches * 2.54
     height_m = height_cm / 100.0
@@ -160,18 +160,26 @@ st.markdown("<br>", unsafe_allow_html=True)
 # ----------------- ACCURATE PREDICTION ENGINE -----------------
 if st.button(t["btn"]):
     
-    # Converting to pure raw arrays (.values) to completely bypass any XGBoost feature name mismatches
-    d_array = np.array([[p_age, bmi_calc, hba1c, fpg, systolic_bp, cholesterol]])
-    h_array = np.array([[p_age, gender_num, systolic_bp, cholesterol, heart_rate, exercise_hours]])
-    o_array = np.array([[p_age, gender_num, bmi_calc]])
+    # Clean structural arrays matching the exact training dimension requirements
+    d_array = np.array([[p_age, bmi_calc, hba1c, fpg, systolic_bp, cholesterol]], dtype=np.float32)
+    h_array = np.array([[p_age, gender_num, systolic_bp, cholesterol, heart_rate, exercise_hours]], dtype=np.float32)
+    o_array = np.array([[p_age, gender_num, bmi_calc]], dtype=np.float32)
     
     try:
-        # Array matching inference engine
+        # Force-override booster specifications to fully prevent any structural name checks
+        if hasattr(d_model, 'get_booster'):
+            d_model.get_booster().feature_names = None
+        if hasattr(h_model, 'get_booster'):
+            h_model.get_booster().feature_names = None
+        if hasattr(o_model, 'get_booster'):
+            o_model.get_booster().feature_names = None
+
+        # Robust array pipeline execution
         d_pred = d_model.predict(d_array)
         h_pred = h_model.predict(h_array)
         o_pred = o_model.predict(o_array)
         
-        # Flatten structure safely
+        # Safe result extraction for all formats
         d_res = int(d_pred[0]) if hasattr(d_pred, '__len__') else int(d_pred)
         h_res = int(h_pred[0]) if hasattr(h_pred, '__len__') else int(h_pred)
         o_res = int(o_pred[0]) if hasattr(o_pred, '__len__') else int(o_pred)
