@@ -1,70 +1,60 @@
 import streamlit as st
 
-# Layout Setup
 st.set_page_config(
-    page_title="Tri-Disease Sentinel AI",
+    page_title="Health Diagnostic Portal",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Premium Clinical Corporate Styling (Zero Emojis for Research look)
+# Simple & Clean Clinical Palette
 st.markdown("""
     <style>
-    .hero-container {
+    .main-hero {
         text-align: center;
-        padding: 60px 30px;
-        background: linear-gradient(135deg, #1e3d59 0%, #17b978 100%);
+        padding: 50px 20px;
+        background-color: #1a365d; /* Dark Professional Navy */
         color: white;
-        border-radius: 12px;
-        margin-top: 20px;
+        border-radius: 10px;
+        margin-top: 15px;
     }
-    .logo-text {
-        font-size: 64px;
-        font-weight: 800;
-        letter-spacing: -1px;
-        margin-bottom: 5px;
-    }
-    .hero-title {
-        font-size: 36px;
+    .main-title {
+        font-size: 38px;
         font-weight: 700;
-        margin-bottom: 15px;
+        margin-bottom: 10px;
     }
-    .hero-subtitle {
+    .main-desc {
         font-size: 16px;
-        max-width: 650px;
-        margin: 0 auto 30px auto;
-        line-height: 1.5;
-        opacity: 0.95;
+        max-width: 700px;
+        margin: 0 auto 25px auto;
+        line-height: 1.6;
+        color: #e2e8f0;
     }
-    .stButton>button {
-        background-color: #ffffff !important;
-        color: #1e3d59 !important;
+    div.stButton > button:first-child {
+        background-color: #10b981 !important; /* Premium Mint Green Action Button */
+        color: white !important;
         font-size: 16px !important;
-        font-weight: 700 !important;
-        padding: 12px 40px !important;
-        border-radius: 25px !important;
+        font-weight: 600 !important;
+        padding: 10px 35px !important;
+        border-radius: 6px !important;
         border: none !important;
-        transition: all 0.3s ease;
     }
     </style>
 """, unsafe_allow_html=True)
 
-# Main Hero Container Section
 st.markdown("""
-    <div class='hero-container'>
-        <div class='logo-text'>TDS // CLINICAL AI</div>
-        <div class='hero-title'>Integrated Multimodal Clinical Decision Support System</div>
-        <div class='hero-subtitle'>
-            An enterprise-grade deep predictive analytics platform leveraging machine learning architectures 
-            for automated metabolic profiling, cardiovascular stratification, and adiposity classification.
+    <div class='main-hero'>
+        <div class='main-title'>Automated Health Testing & Risk Prediction Portal</div>
+        <div class='main-desc'>
+            Welcome to the digital diagnostic assistant. This portal helps you calculate health risk metrics 
+            for Diabetes, Heart Conditions, and Body Mass Category using your general health vitals. 
+            Fill out the simple automated form on the next page to download your certified diagnostic summary.
         </div>
     </div>
 """, unsafe_allow_html=True)
 
 st.markdown("<br><br>", unsafe_allow_html=True)
 
-# Centered Action Button to move to the form
 col1, col2, col3 = st.columns([1, 1, 1])
 with col2:
-    if st.button("Get Started", use_container_width=True):
+    if st.button("Open Diagnostic Form", use_container_width=True):
         st.switch_page("pages/1_Clinical_Evaluation.py")
