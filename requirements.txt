@@ -1,4 +1,4 @@
 streamlit
-xgboost
 numpy
 reportlab
+xgboost==1.7.6
