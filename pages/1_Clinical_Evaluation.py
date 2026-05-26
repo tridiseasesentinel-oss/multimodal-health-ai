@@ -22,8 +22,10 @@ st.markdown("""
         background-color: #f8fafc;
         border-left: 4px solid #3b82f6;
         padding: 15px;
-        border-radius: 4px;
-        margin-top: 10px;
+        border-radius: 6px;
+        margin-top: 12px;
+        font-size: 15px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
     div.stButton > button:first-child {
         background: linear-gradient(90deg, #1e3a8a 0%, #3b82f6 100%) !important;
@@ -61,7 +63,7 @@ with st.sidebar:
     st.markdown("### 🌐 System Settings")
     lang = st.selectbox(
         "Select Portal Language / زبان منتخب کریں", 
-        ["English", "Urdu", "Spanish (Español)", "Arabic (العربية)", "French (Français)"]
+        ["English", "Urdu"]
     )
 
 # Comprehensive Multi-Language Pack
@@ -96,7 +98,7 @@ text_pack = {
     }
 }
 
-t = text_pack.get(lang, text_pack["English"])
+t = text_pack[lang]
 
 st.title(t["title"])
 st.markdown(t["subtitle"])
@@ -122,14 +124,14 @@ col1, col2 = st.columns(2)
 with col1:
     weight = st.number_input(t["weight"], min_value=10.0, max_value=250.0, value=60.0, step=0.5)
     
-    # Feet & Inches Inputs
+    # Feet & Inches Selection Components
     ht_c1, ht_c2 = st.columns(2)
     with ht_c1:
         ft_val = st.number_input(t["height_ft"], min_value=1, max_value=8, value=5, step=1)
     with ht_c2:
         in_val = st.number_input(t["height_in"], min_value=0, max_value=11, value=6, step=1)
         
-    # Standard metric translation
+    # Math metric conversion logic
     total_inches = (ft_val * 12) + in_val
     height_cm = total_inches * 2.54
     height_m = height_cm / 100.0
@@ -155,10 +157,10 @@ with col2:
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# ----------------- CLEAN PREDICTION ENGINE -----------------
+# ----------------- ACCURATE PREDICTION ENGINE -----------------
 if st.button(t["btn"]):
     
-    # Strictly defining the clean feature sets to eliminate feature_names mismatch completely
+    # Clean DataFrames targeting exact feature arrays from the model binaries
     d_df = pd.DataFrame([[p_age, bmi_calc, hba1c, fpg, systolic_bp, cholesterol]], 
                         columns=['Age', 'BMI', 'HbA1c', 'FastingBloodSugar', 'SystolicBP', 'Cholesterol'])
                         
@@ -169,10 +171,13 @@ if st.button(t["btn"]):
                         columns=['Age', 'Gender', 'BMI'])
     
     try:
-        # Isolated predictions mapping
+        # Step-by-step evaluation
         d_pred = d_model.predict(d_df)[0]
         h_pred = h_model.predict(h_df)[0]
-        o_pred = o_model.predict(o_df)[0]
+        
+        # Safe extraction for Obesity prediction to completely eliminate structure or type mismatches
+        o_raw = o_model.predict(o_df)
+        o_pred = int(o_raw[0]) if isinstance(o_raw, (np.ndarray, list)) else int(o_raw)
         
         st.markdown(f"<br><div class='block-heading'>{t['h3']}</div>", unsafe_allow_html=True)
         
@@ -185,7 +190,49 @@ if st.button(t["btn"]):
             obesity_map = {0: "Underweight", 1: "Normal Weight", 2: "Overweight", 3: "Obese Class"}
             obesity_map_ur = {0: "کم وزن", 1: "نارمل وزن", 2: "زیادہ وزن", 3: "موٹاپا"}
             
-            final_ob_val = obesity_map_ur.get(o_pred) if lang == "Urdu" else obesity_map.get(o_pred)
+            final_ob_val = obesity_map_ur.get(o_pred, "نارمل وزن") if lang == "Urdu" else obesity_map.get(o_pred, "Normal Weight")
             st.metric(label=t["ob_lbl"], value=final_ob_val)
             
-        st.success(
+        st.success(t["success"])
+        
+        # ----------------- PRECAUTIONARY MEASURES SECTION -----------------
+        st.markdown(f"<br><div class='block-heading'>{t['h4']}</div>", unsafe_allow_html=True)
+        
+        # 1. Diabetes Precautions
+        if d_pred == 1:
+            if lang == "Urdu":
+                st.markdown("<div class='precaution-box'>⚠️ <b>ذیابیطس کے لیے:</b> میٹھی اشیاء اور زیادہ کاربوہائیڈریٹس والی غذاؤں سے پرہیز کریں۔ روزانہ باقاعدگی سے 30 منٹ چہل قدمی کریں اور شوگر لیول مانیٹر کریں۔</div>", unsafe_allow_html=True)
+            else:
+                st.markdown("<div class='precaution-box'>⚠️ <b>For Diabetes:</b> Strictly limit sugar and high-carbohydrate foods. Engage in 30 minutes of daily physical walks and track blood glucose regularly.</div>", unsafe_allow_html=True)
+        else:
+            if lang == "Urdu":
+                st.markdown("<div class='precaution-box'>✅ <b>ذیابیطس کے لیے:</b> آپ کا بلڈ شوگر لیول محفوظ رینج میں ہے۔ متوازن اور فائبر سے بھرپور غذا کا استعمال جاری رکھیں۔</div>", unsafe_allow_html=True)
+            else:
+                st.markdown("<div class='precaution-box'>✅ <b>For Diabetes:</b> Your glucose markers look normal. Continue maintaining a balanced, high-fiber dietary routine.</div>", unsafe_allow_html=True)
+
+        # 2. Heart Precautions
+        if h_pred == 1:
+            if lang == "Urdu":
+                st.markdown("<div class='precaution-box'>⚠️ <b>دل کی صحت کے لیے:</b> کھانے میں نمک اور چکنائی (Oily/Fried items) کا استعمال فوری کم کریں۔ بلڈ پریشر باقاعدگی سے چیک کریں اور ہلکی ورزش کریں۔</div>", unsafe_allow_html=True)
+            else:
+                st.markdown("<div class='precaution-box'>⚠️ <b>For Heart Condition:</b> Reduce salt consumption and avoid fried/saturated fats. Regularly monitor blood pressure and practice light cardiovascular routines.</div>", unsafe_allow_html=True)
+        else:
+            if lang == "Urdu":
+                st.markdown("<div class='precaution-box'>✅ <b>دل کی صحت کے لیے:</b> دل کی دھڑکن اور بلڈ پریشر کے اشارے بہترین ہیں۔ فعال طرزِ زندگی برقرار رکھیں۔</div>", unsafe_allow_html=True)
+            else:
+                st.markdown("<div class='precaution-box'>✅ <b>For Heart Condition:</b> Excellent cardiovascular vitals. Continue your low-sodium habits and regular exercise.</div>", unsafe_allow_html=True)
+
+        # 3. Obesity Precautions
+        if o_pred >= 2:
+            if lang == "Urdu":
+                st.markdown("<div class='precaution-box'>⚠️ <b>وزن کے انتظام کے لیے:</b> فاسٹ فوڈ اور سافٹ ڈرنکس سے مکمل پرہیز کریں۔ پورشن کنٹرول (Portion Control) فارمولے پر عمل کریں اور روزانہ ورزش کریں۔</div>", unsafe_allow_html=True)
+            else:
+                st.markdown("<div class='precaution-box'>⚠️ <b>For Weight Management:</b> Avoid processed junk foods and high-calorie soft drinks. Apply strict portion control and stay active daily.</div>", unsafe_allow_html=True)
+        else:
+            if lang == "Urdu":
+                st.markdown("<div class='precaution-box'>✅ <b>وزن کے انتظام کے لیے:</b> آپ کا باڈی ماس انڈیکس (BMI) بالکل مثالی زون میں ہے۔ صحت بخش عادات جاری رکھیں۔</div>", unsafe_allow_html=True)
+            else:
+                st.markdown("<div class='precaution-box'>✅ <b>For Weight Management:</b> Your Body Mass Index is within the ideal healthy range. Maintain this active physical lifestyle.</div>", unsafe_allow_html=True)
+
+    except Exception as error:
+        st.error(f"Inference error details: {str(error)}")
